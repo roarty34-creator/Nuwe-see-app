@@ -2,98 +2,72 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fishing App</title>
+<title>Fishing PRO</title>
 
 <style>
-body{
-  background:#07111f;
-  color:white;
-  font-family:Arial;
-  margin:0;
-  padding:10px;
-}
-.card{
-  background:#0f1c2e;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:12px;
-}
-button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  background:#47c7ff;
-  border:none;
-  border-radius:8px;
-  font-weight:bold;
-}
-input,select{
-  width:100%;
-  padding:8px;
-  margin-top:5px;
-  border-radius:6px;
-  border:none;
-}
+body{background:#07111f;color:white;font-family:Arial;margin:0;padding:10px;}
+.card{background:#0f1c2e;padding:12px;border-radius:12px;margin-bottom:12px;}
+button{width:100%;padding:10px;margin-top:8px;background:#47c7ff;border:none;border-radius:8px;font-weight:bold;}
+input,select{width:100%;padding:8px;margin-top:5px;border-radius:6px;border:none;}
 </style>
 
 </head>
 <body>
 
-<h2>🎣 Fishing App</h2>
+<h2>🎣 Fishing PRO</h2>
+
+<!-- WHAT TO USE -->
+<div class="card">
+<h3>🎯 What to use NOW</h3>
+<button onclick="smart()">Get Advice</button>
+<div id="ai"></div>
+</div>
 
 <!-- LEGAL -->
 <div class="card">
 <h3>⚖️ Legal Checker</h3>
-
 <select id="species"></select>
-
 <input id="size" type="number" placeholder="Size cm">
-
 <button onclick="check()">Check</button>
-
 <div id="result"></div>
 </div>
 
 <!-- LOG -->
 <div class="card">
 <h3>📝 Session Log</h3>
-
 <input id="date" type="date">
 <input id="spot" placeholder="Spot">
 <input id="sp" placeholder="Species">
-
 <button onclick="saveLog()">Save</button>
-
 <div id="logs"></div>
+</div>
+
+<!-- FORECAST -->
+<div class="card">
+<h3>📅 Forecast</h3>
+<div id="forecast"></div>
 </div>
 
 <script>
 
-// FISH DATA
+// FISH DB
 const fish=[
-{name:"Kob",min:60},
-{name:"Yellowtail",min:60},
-{name:"Hottentot",min:22},
-{name:"Shad",min:30}
+{name:"Kob",min:60,bag:5,bait:"Chokka"},
+{name:"Yellowtail",min:60,bag:10,bait:"Live bait"},
+{name:"Hottentot",min:22,bag:10,bait:"Red bait"},
+{name:"Shad",min:30,bag:4,bait:"Sardine"}
 ];
 
-// LOAD DROPDOWN
-species.innerHTML=fish.map(f=>`
-<option>${f.name}</option>
-`).join("");
+// LOAD
+species.innerHTML=fish.map(f=>`<option>${f.name}</option>`).join("");
 
-// LEGAL CHECK
+// LEGAL
 function check(){
 let f=fish.find(x=>x.name==species.value);
-
-if(size.value>=f.min){
-result.innerHTML="✅ Legal";
-}else{
-result.innerHTML="❌ Too small";
-}
+result.innerHTML=size.value>=f.min?"✅ Legal":"❌ Too small";
 }
 
-// LOGS
+// LOG
 let logsData=JSON.parse(localStorage.getItem("logs")||"[]");
 
 function saveLog(){
@@ -102,20 +76,31 @@ date:date.value,
 spot:spot.value,
 species:sp.value
 });
-
 localStorage.setItem("logs",JSON.stringify(logsData));
-
 renderLogs();
 }
 
-// SHOW LOGS
 function renderLogs(){
 logs.innerHTML=logsData.map(l=>`
 <div>${l.date} - ${l.species}</div>
 `).join("");
 }
-
 renderLogs();
+
+// SMART
+function smart(){
+let f=fish[Math.floor(Math.random()*fish.length)];
+ai.innerHTML=`Try: <b>${f.name}</b><br>Bait: ${f.bait}`;
+}
+
+// FORECAST
+fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max&timezone=auto")
+.then(r=>r.json())
+.then(d=>{
+forecast.innerHTML=d.daily.time.slice(0,3).map((day,i)=>
+`${day}: ${d.daily.temperature_2m_max[i]}°`
+).join("<br>");
+});
 
 </script>
 
