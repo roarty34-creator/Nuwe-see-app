@@ -1,1 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fishing App</title>
 
+<style>
+body{
+  background:#07111f;
+  color:white;
+  font-family:Arial;
+  margin:0;
+  padding:10px;
+}
+.card{
+  background:#0f1c2e;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  background:#47c7ff;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+}
+input,select{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  border-radius:6px;
+  border:none;
+}
+</style>
+
+</head>
+<body>
+
+<h2>🎣 Fishing App</h2>
+
+<!-- LEGAL -->
+<div class="card">
+<h3>⚖️ Legal Checker</h3>
+
+<select id="species"></select>
+
+<input id="size" type="number" placeholder="Size cm">
+
+<button onclick="check()">Check</button>
+
+<div id="result"></div>
+</div>
+
+<!-- LOG -->
+<div class="card">
+<h3>📝 Session Log</h3>
+
+<input id="date" type="date">
+<input id="spot" placeholder="Spot">
+<input id="sp" placeholder="Species">
+
+<button onclick="saveLog()">Save</button>
+
+<div id="logs"></div>
+</div>
+
+<script>
+
+// FISH DATA
+const fish=[
+{name:"Kob",min:60},
+{name:"Yellowtail",min:60},
+{name:"Hottentot",min:22},
+{name:"Shad",min:30}
+];
+
+// LOAD DROPDOWN
+species.innerHTML=fish.map(f=>`
+<option>${f.name}</option>
+`).join("");
+
+// LEGAL CHECK
+function check(){
+let f=fish.find(x=>x.name==species.value);
+
+if(size.value>=f.min){
+result.innerHTML="✅ Legal";
+}else{
+result.innerHTML="❌ Too small";
+}
+}
+
+// LOGS
+let logsData=JSON.parse(localStorage.getItem("logs")||"[]");
+
+function saveLog(){
+logsData.push({
+date:date.value,
+spot:spot.value,
+species:sp.value
+});
+
+localStorage.setItem("logs",JSON.stringify(logsData));
+
+renderLogs();
+}
+
+// SHOW LOGS
+function renderLogs(){
+logs.innerHTML=logsData.map(l=>`
+<div>${l.date} - ${l.species}</div>
+`).join("");
+}
+
+renderLogs();
+
+</script>
+
+</body>
+</html>
