@@ -5,24 +5,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fishing PRO Boat</title>
   <style>
-    body{margin:0;font-family:Arial, sans-serif;background:#06101c;color:#fff;padding:16px}
-    .card{background:#0f2236;padding:14px;border-radius:12px;margin-bottom:12px}
-    button{width:100%;padding:12px;border:none;border-radius:10px;background:#00c2ff;color:#000;font-weight:bold;margin-top:8px}
-    input,select{width:100%;padding:10px;margin-top:6px;border:none;border-radius:8px}
-    .item{background:rgba(255,255,255,.06);padding:10px;border-radius:10px;margin-top:10px}
-    .good{color:#35d07f}.warn{color:#f1c40f}.bad{color:#ff6666}
+    :root{
+      --bg:#06101c;
+      --panel:#0f2236;
+      --panel2:rgba(255,255,255,.06);
+      --accent:#00c2ff;
+      --good:#35d07f;
+      --warn:#f1c40f;
+      --bad:#ff6666;
+      --text:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding-bottom:78px;
+    }
+    header{
+      background:#0c1a2b;
+      padding:14px;
+      text-align:center;
+      position:sticky;
+      top:0;
+      z-index:20;
+    }
+    .tab{display:none;padding:12px}
+    .tab.active{display:block}
+    .card{
+      background:var(--panel);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+    h2,h3{margin:0 0 8px 0}
+    button{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:var(--accent);
+      color:#000;
+      font-weight:bold;
+      margin-top:8px;
+    }
+    input,select{
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border:none;
+      border-radius:8px;
+    }
+    .item{
+      background:var(--panel2);
+      padding:10px;
+      border-radius:10px;
+      margin-top:10px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+    @media (min-width:800px){
+      .grid{grid-template-columns:repeat(3,1fr)}
+    }
+    img{
+      width:100%;
+      height:180px;
+      object-fit:contain;
+      object-position:center;
+      background:#102437;
+      border-radius:10px;
+      display:block;
+    }
+    .ph{
+      width:100%;
+      height:180px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:#102437;
+      border-radius:10px;
+      padding:10px;
+      font-weight:bold;
+    }
+    .good{color:var(--good);font-weight:bold}
+    .warn{color:var(--warn);font-weight:bold}
+    .bad{color:var(--bad);font-weight:bold}
+    .tabs{
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      background:#0a2138;
+      z-index:30;
+    }
+    .tabs button{
+      margin:0;
+      border-radius:0;
+      background:transparent;
+      color:#fff;
+      padding:12px 4px;
+      font-size:12px;
+    }
+    .tabs button.active{
+      background:var(--accent);
+      color:#000;
+    }
   </style>
 </head>
 <body>
 
+<header>
   <h2>🎣 Fishing PRO Boat</h2>
+</header>
 
+<section id="home" class="tab active">
   <div class="card">
-    <h3>Weather</h3>
-    <button onclick="loadWeather()">Load Weather</button>
+    <h3>Weather + Sea</h3>
+    <button onclick="loadWeather()">Load Weather + Sea</button>
     <div id="weatherBox">Tap button</div>
   </div>
 
+  <div class="card">
+    <h3>Fish Engine</h3>
+    <select id="engineFish"></select>
+    <button onclick="showEngine()">Show Engine</button>
+    <div id="engineBox">Choose fish and tap button</div>
+  </div>
+</section>
+
+<section id="fish" class="tab">
+  <div class="card">
+    <h3>Fish Database</h3>
+    <input id="fishSearch" placeholder="Search fish" oninput="renderFishDb()">
+    <div id="fishGrid" class="grid"></div>
+  </div>
+
+  <div class="card">
+    <h3>Fish Detail</h3>
+    <div id="fishDetail">Tap a fish card</div>
+  </div>
+
+  <div class="card">
+    <h3>AI Fish ID</h3>
+    <select id="idType">
+      <option value="">Shape</option>
+      <option value="long">Long</option>
+      <option value="round">Round</option>
+      <option value="torpedo">Torpedo</option>
+    </select>
+    <select id="idColor">
+      <option value="">Color</option>
+      <option value="silver">Silver</option>
+      <option value="red">Red</option>
+      <option value="blue">Blue</option>
+      <option value="yellow">Yellow</option>
+    </select>
+    <select id="idZone">
+      <option value="">Zone</option>
+      <option value="surface">Surface</option>
+      <option value="mid">Mid water</option>
+      <option value="bottom">Bottom</option>
+      <option value="reef">Reef</option>
+    </select>
+    <select id="idTail">
+      <option value="">Tail</option>
+      <option value="forked">Forked</option>
+      <option value="rounded">Rounded</option>
+    </select>
+    <select id="idMouth">
+      <option value="">Mouth</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="big">Big</option>
+    </select>
+    <button onclick="runFishId()">Identify</button>
+    <div id="idBox">Select options</div>
+  </div>
+</section>
+
+<section id="rigs" class="tab">
+  <div class="card">
+    <h3>Rig Cards</h3>
+    <div id="rigGrid" class="grid"></div>
+  </div>
+</section>
+
+<section id="legal" class="tab">
   <div class="card">
     <h3>Legal Checker</h3>
     <select id="legalFish"></select>
@@ -40,224 +215,364 @@
     <button onclick="saveCatch()">Save Catch</button>
     <div id="catchList"></div>
   </div>
+</section>
 
-  <script>
-    const fishDB = [
-      {name:'Kob', key:'kob', min:60, bag:5, status:'green'},
-      {name:'Yellowtail', key:'yellowtail', min:0, bag:10, status:'green'},
-      {name:'Geelbek', key:'geelbek', min:60, bag:2, status:'orange'},
-      {name:'Hottentot', key:'hottentot', min:22, bag:10, status:'green'},
-      {name:'Red Roman', key:'redroman', min:30, bag:2, status:'green'},
-      {name:'Shad', key:'shad', min:30, bag:4, status:'green'},
-      {name:'Dageraad', key:'dageraad', min:40, bag:1, status:'orange'}
-    ];
+<nav class="tabs">
+  <button class="active" onclick="openTab('home', this)">Home</button>
+  <button onclick="openTab('fish', this)">Fish</button>
+  <button onclick="openTab('rigs', this)">Rigs</button>
+  <button onclick="openTab('legal', this)">Legal</button>
+</nav>
 
-    const LS_CATCH = 'catchLogs';
+<script>
+const fishDB = [
+  {name:'Kob', key:'kob', min:60, bag:5, status:'green', type:'long', color:'silver', zone:'bottom', tail:'rounded', mouth:'big', bait:'Chokka + pilchard', rig:'Kob rig', depth:'Bottom channels', photo:'images/fish-cape-cob.png', rigPhoto:'images/rig-kob.jpg', notes:'Strong boat target on channels and reef edges.'},
+  {name:'Yellowtail', key:'yellowtail', min:0, bag:10, status:'green', type:'torpedo', color:'blue', zone:'surface', tail:'forked', mouth:'medium', bait:'Octopus leg', rig:'Yellowtail drift rig', depth:'Surface to mid', photo:'images/fish-yellowtail.png', rigPhoto:'images/rig-yellowtail.jpg', notes:'Look for bait, birds and current lines.'},
+  {name:'Geelbek', key:'geelbek', min:60, bag:2, status:'orange', type:'long', color:'silver', zone:'mid', tail:'forked', mouth:'medium', bait:'Pilchard', rig:'Drift rig', depth:'Mid water reefs', photo:'images/fish-geelbek.png', rigPhoto:'images/rig-geelbek.jpg', notes:'Strict limits species.'},
+  {name:'Hottentot', key:'hottentot', min:22, bag:10, status:'green', type:'round', color:'silver', zone:'reef', tail:'forked', mouth:'small', bait:'Pilchard + chokka', rig:'Reef rig', depth:'Shallow reef', photo:'images/fish-hottentot.png', rigPhoto:'images/rig-reef.jpg', notes:'Smaller hooks near reef.'},
+  {name:'Red Roman', key:'redroman', min:30, bag:2, status:'green', type:'round', color:'red', zone:'reef', tail:'rounded', mouth:'medium', bait:'Squid', rig:'Reef rig', depth:'Rocky reef', photo:'images/fish-red-roman.png', rigPhoto:'images/rig-reef.jpg', notes:'Fish close to hard structure.'},
+  {name:'Shad', key:'shad', min:30, bag:4, status:'green', type:'long', color:'silver', zone:'surface', tail:'forked', mouth:'big', bait:'Spoon / sardine', rig:'Spinning rig', depth:'Surface', photo:'images/fish-elf-shad.png', rigPhoto:'images/rig-spin.jpg', notes:'Surface activity.'},
+  {name:'Silverfish', key:'silverfish', min:35, bag:5, status:'green', type:'round', color:'silver', zone:'reef', tail:'forked', mouth:'small', bait:'Red bait', rig:'Reef rig', depth:'Reef patches', photo:'images/fish-carpenter.png', rigPhoto:'images/rig-reef.jpg', notes:'Mixed reef patches.'},
+  {name:'Dageraad', key:'dageraad', min:40, bag:1, status:'orange', type:'round', color:'red', zone:'reef', tail:'rounded', mouth:'small', bait:'Squid / red bait', rig:'Reef rig', depth:'Deep reef', photo:'images/fish-dageraad.png', rigPhoto:'images/rig-reef.jpg', notes:'Strict limits species.'}
+];
 
-    function saveLS(v){ localStorage.setItem(LS_CATCH, JSON.stringify(v)); }
-    function loadLS(){ return JSON.parse(localStorage.getItem(LS_CATCH) || '[]'); }
+const LS = 'catchLogs';
 
-    function fill(){
-      const opts = fishDB.map(f => `<option value="${f.key}">${f.name}</option>`).join('');
-      document.getElementById('legalFish').innerHTML = opts;
-      document.getElementById('catchFish').innerHTML = opts;
-    }
+function saveLS(v){ localStorage.setItem(LS, JSON.stringify(v)); }
+function loadLS(){ return JSON.parse(localStorage.getItem(LS) || '[]'); }
 
-    function getFish(key){
-      return fishDB.find(f => f.key === key);
-    }
+function openTab(id, btn){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
-    function baroGrade(p){
-      if (p >= 1018) return 'High';
-      if (p >= 1010) return 'Good';
-      if (p >= 1003) return 'Falling';
-      return 'Low';
-    }
+function fill(){
+  const opts = fishDB.map(f => `<option value="${f.key}">${f.name}</option>`).join('');
+  document.getElementById('engineFish').innerHTML = opts;
+  document.getElementById('legalFish').innerHTML = opts;
+  document.getElementById('catchFish').innerHTML = opts;
+}
+fill();
 
-    function windText(deg){
-      if (deg == null) return '-';
-      if (deg >= 337.5 || deg < 22.5) return 'N';
-      if (deg < 67.5) return 'NE';
-      if (deg < 112.5) return 'E';
-      if (deg < 157.5) return 'SE';
-      if (deg < 202.5) return 'S';
-      if (deg < 247.5) return 'SW';
-      if (deg < 292.5) return 'W';
-      return 'NW';
-    }
+function getFish(key){
+  return fishDB.find(f => f.key === key);
+}
 
-    function fishingGrade(wind, pressure){
-      if (wind == null || pressure == null) return 'Unknown';
-      if (wind <= 18 && pressure >= 1010) return 'GOOD';
-      if (wind <= 28 && pressure >= 1003) return 'OK';
-      return 'BAD';
-    }
+function baroGrade(p){
+  if (p >= 1018) return 'High';
+  if (p >= 1010) return 'Good';
+  if (p >= 1003) return 'Falling';
+  return 'Low';
+}
 
-    function fishingGradeClass(grade){
-      if (grade === 'GOOD') return 'good';
-      if (grade === 'OK') return 'warn';
-      if (grade === 'BAD') return 'bad';
-      return '';
-    }
+function windText(deg){
+  if (deg == null) return '-';
+  if (deg >= 337.5 || deg < 22.5) return 'N';
+  if (deg < 67.5) return 'NE';
+  if (deg < 112.5) return 'E';
+  if (deg < 157.5) return 'SE';
+  if (deg < 202.5) return 'S';
+  if (deg < 247.5) return 'SW';
+  if (deg < 292.5) return 'W';
+  return 'NW';
+}
 
-    async function loadWeather(){
-      const box = document.getElementById('weatherBox');
-      box.innerHTML = 'Loading...';
+function fishingGrade(wind, pressure, swell){
+  if(wind == null || pressure == null) return 'Unknown';
+  if(wind <= 18 && pressure >= 1010 && (swell == null || swell <= 2)) return 'GOOD';
+  if(wind <= 28 && pressure >= 1003 && (swell == null || swell <= 3)) return 'OK';
+  return 'BAD';
+}
 
-      try{
-        const res = await fetch(
-          'https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_direction_10m_dominant,pressure_msl_mean&timezone=auto'
-        );
-        if(!res.ok) throw new Error('API fail');
+function gradeClass(g){
+  if(g === 'GOOD') return 'good';
+  if(g === 'OK') return 'warn';
+  if(g === 'BAD') return 'bad';
+  return '';
+}
 
-        const d = await res.json();
-        if(!d.daily || !d.daily.time?.length) throw new Error('No data');
+async function loadWeather(){
+  const box = document.getElementById('weatherBox');
+  box.innerHTML = 'Loading...';
 
-        box.innerHTML = d.daily.time.slice(0,5).map((day,i)=>{
-          const wind = d.daily.wind_speed_10m_max?.[i];
-          const pressure = d.daily.pressure_msl_mean?.[i];
-          const grade = fishingGrade(wind, pressure);
+  try{
+    const [wRes, mRes] = await Promise.all([
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_direction_10m_dominant,pressure_msl_mean&timezone=auto'),
+      fetch('https://marine-api.open-meteo.com/v1/marine?latitude=-34.37&longitude=21.42&daily=wave_height_max,swell_wave_height_max,sea_surface_temperature_max&timezone=auto')
+    ]);
 
-          return `
-            <div class="item">
-              <b>${day}</b><br>
-              Day temp: ${d.daily.temperature_2m_max?.[i] ?? '-'}°C<br>
-              Night temp: ${d.daily.temperature_2m_min?.[i] ?? '-'}°C<br>
-              Wind: ${wind ?? '-'} km/h<br>
-              Wind dir: ${d.daily.wind_direction_10m_dominant?.[i] ?? '-'}° (${windText(d.daily.wind_direction_10m_dominant?.[i])})<br>
-              Barometer: ${pressure ?? '-'} hPa<br>
-              Barometer grade: ${pressure != null ? baroGrade(pressure) : '-'}<br>
-              Fishing rating: <span class="${fishingGradeClass(grade)}">${grade}</span>
-            </div>
-          `;
-        }).join('');
-      }catch(err){
-        console.log(err);
-        box.innerHTML = `
-          <div class="item warn">
-            API failed<br><br>
-            Day temp: 20°C<br>
-            Night temp: 14°C<br>
-            Wind: 12 km/h<br>
-            Wind dir: NW<br>
-            Barometer: 1012 hPa<br>
-            Barometer grade: Good<br>
-            Fishing rating: <span class="good">GOOD</span>
-          </div>
-        `;
-      }
-    }
+    if(!wRes.ok || !mRes.ok) throw new Error('API fail');
 
-    function runLegal(){
-      const fish = getFish(document.getElementById('legalFish').value);
-      const sizeRaw = document.getElementById('legalSize').value;
-      const size = sizeRaw === '' ? null : Number(sizeRaw);
+    const w = await wRes.json();
+    const m = await mRes.json();
 
-      const logs = loadLS();
-      const today = new Date().toDateString();
+    if(!w.daily || !w.daily.time?.length) throw new Error('No weather');
+    if(!m.daily) throw new Error('No marine');
 
-      let caught = 0;
-      logs.forEach(l => {
-        if(l.fish === fish.name && l.day === today){
-          caught += Number(l.count || 1);
-        }
-      });
+    box.innerHTML = w.daily.time.slice(0,5).map((day,i)=>{
+      const wind = w.daily.wind_speed_10m_max?.[i];
+      const pressure = w.daily.pressure_msl_mean?.[i];
+      const swell = m.daily.swell_wave_height_max?.[i];
+      const wave = m.daily.wave_height_max?.[i];
+      const water = m.daily.sea_surface_temperature_max?.[i];
+      const grade = fishingGrade(wind, pressure, swell);
 
-      const remaining = fish.bag - caught;
-      let msg = '';
-      let cls = 'good';
-
-      if(size === null){
-        msg += `Enter size. Min: ${fish.min} cm<br>`;
-      } else if(size < fish.min){
-        msg += `❌ Too small. Min: ${fish.min} cm<br>`;
-        cls = 'bad';
-      } else {
-        msg += `✅ Size OK. Min: ${fish.min} cm<br>`;
-      }
-
-      msg += `Bag limit: ${fish.bag}<br>`;
-      msg += `Caught today: ${caught}<br>`;
-      msg += `Remaining: ${remaining > 0 ? remaining : 0}<br>`;
-
-      if(caught > fish.bag){
-        msg += `🚨 OVER BAG LIMIT<br>`;
-        cls = 'bad';
-      } else if(caught === fish.bag){
-        msg += `⚠ BAG FULL<br>`;
-        if(cls !== 'bad') cls = 'warn';
-      } else if(remaining === 1){
-        msg += `⚠ Only 1 left<br>`;
-        if(cls === 'good') cls = 'warn';
-      }
-
-      if(fish.status === 'orange'){
-        msg += `Strict species<br>`;
-        if(cls === 'good') cls = 'warn';
-      }
-
-      document.getElementById('legalBox').innerHTML = `<div class="${cls}">${msg}</div>`;
-    }
-
-    function saveCatch(){
-      const fish = getFish(document.getElementById('catchFish').value);
-      const size = document.getElementById('catchSize').value;
-      const count = Number(document.getElementById('catchCount').value || 1);
-      const notes = document.getElementById('catchNotes').value;
-
-      if(!fish){
-        alert('Choose fish');
-        return;
-      }
-      if(count <= 0){
-        alert('Count must be 1 or more');
-        return;
-      }
-
-      const list = loadLS();
-      list.unshift({
-        fish: fish.name,
-        size,
-        count,
-        notes,
-        day: new Date().toDateString(),
-        created: new Date().toLocaleString()
-      });
-      saveLS(list);
-
-      document.getElementById('catchSize').value = '';
-      document.getElementById('catchCount').value = '1';
-      document.getElementById('catchNotes').value = '';
-
-      renderCatch();
-
-      document.getElementById('legalFish').value = fish.key;
-      runLegal();
-    }
-
-    function renderCatch(){
-      const list = loadLS();
-      document.getElementById('catchList').innerHTML = list.map((c,i)=>`
+      return `
         <div class="item">
-          <b>${c.fish}</b> (${c.count})<br>
-          ${c.size || '-'} cm<br>
-          ${c.notes || ''}<br>
-          ${c.day}<br>
-          <button onclick="delCatch(${i})">Delete</button>
+          <b>${day}</b><br>
+          Day temp: ${w.daily.temperature_2m_max?.[i] ?? '-'}°C<br>
+          Night temp: ${w.daily.temperature_2m_min?.[i] ?? '-'}°C<br>
+          Water temp: ${water ?? '-'}°C<br>
+          Wind: ${wind ?? '-'} km/h<br>
+          Wind dir: ${w.daily.wind_direction_10m_dominant?.[i] ?? '-'}° (${windText(w.daily.wind_direction_10m_dominant?.[i])})<br>
+          Swell: ${swell ?? '-'} m<br>
+          Wave: ${wave ?? '-'} m<br>
+          Barometer: ${pressure ?? '-'} hPa<br>
+          Barometer grade: ${pressure != null ? baroGrade(pressure) : '-'}<br>
+          Fishing rating: <span class="${gradeClass(grade)}">${grade}</span>
         </div>
-      `).join('') || 'No logs';
-    }
+      `;
+    }).join('');
+  }catch(err){
+    console.log(err);
+    box.innerHTML = `
+      <div class="item warn">
+        API failed<br><br>
+        Day temp: 20°C<br>
+        Night temp: 14°C<br>
+        Water temp: 18°C<br>
+        Wind: 12 km/h<br>
+        Wind dir: NW<br>
+        Swell: 1.5 m<br>
+        Wave: 1.8 m<br>
+        Barometer: 1012 hPa<br>
+        Barometer grade: Good<br>
+        Fishing rating: <span class="good">GOOD</span>
+      </div>
+    `;
+  }
+}
 
-    function delCatch(i){
-      const list = loadLS();
-      list.splice(i,1);
-      saveLS(list);
-      renderCatch();
-      runLegal();
-    }
+function showEngine(){
+  const f = getFish(document.getElementById('engineFish').value);
+  document.getElementById('engineBox').innerHTML = `
+    <div class="item">
+      <b>${f.name}</b><br>
+      Bait: ${f.bait}<br>
+      Rig: ${f.rig}<br>
+      Depth: ${f.depth}<br>
+      Min size: ${f.min} cm<br>
+      Bag limit: ${f.bag}/day
+    </div>
+  `;
+}
 
-    fill();
-    renderCatch();
-  </script>
+function renderFishDb(){
+  const q = document.getElementById('fishSearch').value.trim().toLowerCase();
+  const items = fishDB.filter(f => !q || f.name.toLowerCase().includes(q) || f.notes.toLowerCase().includes(q));
+
+  document.getElementById('fishGrid').innerHTML = items.map(f => `
+    <div class="item" onclick="showFishDetail('${f.key}')">
+      <img src="${f.photo}" alt="${f.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ph">${f.name}</div>
+      <div style="margin-top:8px"><b>${f.name}</b></div>
+      <div>Min: ${f.min} cm</div>
+      <div>Bag: ${f.bag}/day</div>
+    </div>
+  `).join('');
+}
+
+function showFishDetail(key){
+  const f = getFish(key);
+  document.getElementById('fishDetail').innerHTML = `
+    <div class="item">
+      <img src="${f.photo}" alt="${f.name}" onerror="this.style.display='none'">
+      <b>${f.name}</b><br>
+      Min size: ${f.min} cm<br>
+      Bag limit: ${f.bag}/day<br>
+      Bait: ${f.bait}<br>
+      Rig: ${f.rig}<br>
+      Depth: ${f.depth}<br>
+      Notes: ${f.notes}
+    </div>
+  `;
+}
+
+function renderRigs(){
+  document.getElementById('rigGrid').innerHTML = fishDB.map(f => `
+    <div class="item">
+      <img src="${f.rigPhoto || ''}" alt="${f.name} rig" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ph">${f.name}<br>${f.rig}</div>
+      <div style="margin-top:8px"><b>${f.name}</b></div>
+      <div>Rig: ${f.rig}</div>
+      <div>Bait: ${f.bait}</div>
+      <div>Depth: ${f.depth}</div>
+      <div>Bag: ${f.bag}/day</div>
+    </div>
+  `).join('');
+}
+
+function runFishId(){
+  const type = document.getElementById('idType').value;
+  const color = document.getElementById('idColor').value;
+  const zone = document.getElementById('idZone').value;
+  const tail = document.getElementById('idTail').value;
+  const mouth = document.getElementById('idMouth').value;
+  const box = document.getElementById('idBox');
+
+  const scored = fishDB.map(f => {
+    let score = 0;
+    let blocked = false;
+
+    if(color === 'red' && ['yellowtail','shad'].includes(f.key)) blocked = true;
+    if(color === 'blue' && ['redroman','dageraad'].includes(f.key)) blocked = true;
+    if(type === 'torpedo' && ['redroman','dageraad','hottentot','silverfish'].includes(f.key)) blocked = true;
+    if(type === 'round' && ['yellowtail','shad','kob','geelbek'].includes(f.key)) blocked = true;
+    if(zone === 'reef' && ['yellowtail','shad'].includes(f.key)) blocked = true;
+    if(zone === 'surface' && ['redroman','dageraad','hottentot','silverfish'].includes(f.key)) blocked = true;
+
+    if(blocked) return {...f, score:-999};
+
+    if(type && f.type === type) score += 30;
+    if(color && f.color === color) score += 25;
+    if(zone && f.zone === zone) score += 20;
+    if(tail && f.tail === tail) score += 10;
+    if(mouth && f.mouth === mouth) score += 10;
+
+    return {...f, score};
+  }).filter(f => f.score > 0).sort((a,b) => b.score - a.score);
+
+  if(!scored.length){
+    box.innerHTML = 'No strong match';
+    return;
+  }
+
+  const f = scored[0];
+  box.innerHTML = `
+    <div class="item">
+      <b>Best match: ${f.name}</b><br>
+      Min size: ${f.min} cm<br>
+      Bag limit: ${f.bag}/day<br>
+      Bait: ${f.bait}<br>
+      Rig: ${f.rig}<br>
+      Confidence: ${f.score}%
+    </div>
+  `;
+}
+
+function runLegal(){
+  const fish = getFish(document.getElementById('legalFish').value);
+  const sizeRaw = document.getElementById('legalSize').value;
+  const size = sizeRaw === '' ? null : Number(sizeRaw);
+
+  const logs = loadLS();
+  const today = new Date().toDateString();
+
+  let caught = 0;
+  logs.forEach(l => {
+    if(l.fish === fish.name && l.day === today){
+      caught += Number(l.count || 1);
+    }
+  });
+
+  const remaining = fish.bag - caught;
+  let msg = '';
+  let cls = 'good';
+
+  if(size === null){
+    msg += `Enter size. Min: ${fish.min} cm<br>`;
+  } else if(size < fish.min){
+    msg += `❌ Too small. Min: ${fish.min} cm<br>`;
+    cls = 'bad';
+  } else {
+    msg += `✅ Size OK. Min: ${fish.min} cm<br>`;
+  }
+
+  msg += `Bag limit: ${fish.bag}<br>`;
+  msg += `Caught today: ${caught}<br>`;
+  msg += `Remaining: ${remaining > 0 ? remaining : 0}<br>`;
+
+  if(caught > fish.bag){
+    msg += `🚨 OVER BAG LIMIT<br>`;
+    cls = 'bad';
+  } else if(caught === fish.bag){
+    msg += `⚠ BAG FULL<br>`;
+    if(cls !== 'bad') cls = 'warn';
+  } else if(remaining === 1){
+    msg += `⚠ Only 1 left<br>`;
+    if(cls === 'good') cls = 'warn';
+  }
+
+  if(fish.status === 'orange'){
+    msg += `Strict species<br>`;
+    if(cls === 'good') cls = 'warn';
+  }
+
+  document.getElementById('legalBox').innerHTML = `<div class="${cls}">${msg}</div>`;
+}
+
+function saveCatch(){
+  const fish = getFish(document.getElementById('catchFish').value);
+  const size = document.getElementById('catchSize').value;
+  const count = Number(document.getElementById('catchCount').value || 1);
+  const notes = document.getElementById('catchNotes').value;
+
+  if(!fish){
+    alert('Choose fish');
+    return;
+  }
+  if(count <= 0){
+    alert('Count must be 1 or more');
+    return;
+  }
+
+  const list = loadLS();
+  list.unshift({
+    fish: fish.name,
+    size,
+    count,
+    notes,
+    day: new Date().toDateString(),
+    created: new Date().toLocaleString()
+  });
+  saveLS(list);
+
+  document.getElementById('catchSize').value = '';
+  document.getElementById('catchCount').value = '1';
+  document.getElementById('catchNotes').value = '';
+
+  renderCatch();
+  document.getElementById('legalFish').value = fish.key;
+  runLegal();
+}
+
+function renderCatch(){
+  const list = loadLS();
+  document.getElementById('catchList').innerHTML = list.map((c,i)=>`
+    <div class="item">
+      <b>${c.fish}</b> (${c.count})<br>
+      ${c.size || '-'} cm<br>
+      ${c.notes || ''}<br>
+      ${c.day}<br>
+      <button onclick="delCatch(${i})">Delete</button>
+    </div>
+  `).join('') || 'No logs';
+}
+
+function delCatch(i){
+  const list = loadLS();
+  list.splice(i,1);
+  saveLS(list);
+  renderCatch();
+  runLegal();
+}
+
+renderFishDb();
+renderRigs();
+renderCatch();
+</script>
+
 </body>
 </html>
