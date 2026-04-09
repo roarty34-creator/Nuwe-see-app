@@ -1,10 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fishing PRO Boat</title>
+  <style>
+    body{margin:0;font-family:Arial;background:#06101c;color:#fff;padding:16px}
+    .card{background:#0f2236;padding:14px;border-radius:12px;margin-bottom:12px}
+    button{width:100%;padding:12px;border:none;border-radius:10px;background:#00c2ff;color:#000;font-weight:bold;margin-top:8px}
+    input,select{width:100%;padding:10px;margin-top:6px;border:none;border-radius:8px}
+    .item{background:rgba(255,255,255,.06);padding:10px;border-radius:10px;margin-top:10px}
+    .good{color:#35d07f}.warn{color:#f1c40f}.bad{color:#ff6666}
+  </style>
 </head>
-<body style="background:black;color:white;font-family:Arial;padding:20px">
-  <h1>IT WORKS</h1>
+<body>
+
+  <h2>🎣 Fishing PRO Boat</h2>
+
+  <div class="card">
+    <h3>Weather</h3>
+    <button onclick="loadWeather()">Load Weather</button>
+    <div id="weatherBox">Tap button</div>
+  </div>
+
+  <div class="card">
+    <h3>Legal Checker</h3>
+    <select id="legalFish"></select>
+    <input id="legalSize" placeholder="Size cm">
+    <button onclick="runLegal()">Check Legal</button>
+    <div id="legalBox"></div>
+  </div>
+
+  <div class="card">
+    <h3>Catch Log</h3>
+    <select id="catchFish"></select>
+    <input id="catchSize" placeholder="Size cm">
+    <input id="catchCount" value="1" placeholder="Count">
+    <input id="catchNotes" placeholder="Notes">
+    <button onclick="saveCatch()">Save Catch</button>
+    <div id="catchList"></div>
+  </div>
+
+  <script>
+    const fishDB = [
+      {name:'Kob', key:'kob', min:60, bag:5, status:'green'},
+      {name:'Yellowtail', key:'yellowtail', min:0, bag:10, status:'green'},
+      {name:'Geelbek', key:'geelbek', min:60, bag:2, status:'orange'},
+      {name:'Hottentot', key:'hottentot', min:22, bag:10, status:'green'},
+      {name:'Red Roman', key:'redroman', min:30, bag:2, status:'green'},
+      {name:'Shad', key:'shad', min:30, bag:4, status:'green'},
+      {name:'Dageraad', key:'dageraad', min:40, bag:1, status:'orange'}
+    ];
+
+    const LS_CATCH = 'catchLogs';
+
+    function saveLS(v){ localStorage.setItem(LS_CATCH, JSON.stringify(v)); }
+    function loadLS(){ return JSON.parse(localStorage.getItem(LS_CATCH) || '[]'); }
+
+    function fill(){
+      const opts = fishDB.map(f => `<option value="${f.key}">${f.name}</option>`).join('');
+      document.getElementById('legalFish').innerHTML = opts;
+      document.getElementById('catchFish').innerHTML = opts;
+    }
+
+    function getFish(key){
+      return fishDB.find(f => f.key === key);
+    }
+
+    function baroGrade(p){
+      if (p >= 1018) return 'High';
+      if (p >= 1010) return 'Good';
+      if (p >= 1003) return 'Falling';
+      return 'Low';
+    }
+
+    async function loadWeather(){
+      const box = document.getElementById('weatherBox');
+      box.innerHTML = 'Loading...';
+
+      try{
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,pressure_msl_mean&timezone=auto');
+        if(!res.ok) throw new Error('API fail');
+        const d = await res.json();
+        if(!d.daily || !d.daily.time?.length) throw new Error('No data');
+
+        box.innerHTML = d.daily.time.slice(0,5).map((day,i)=>`
+          <div class="item">
+            <b>${day}</b><br>
+            Day temp: ${d.daily.temperature_2m_max?.[i] ?? '-'}°C<br>
+            Night temp: ${d.daily.temperature_2m_min?.[i] ?? '-'}°C<br>
+            Wind: ${d.daily.wind_speed_10m_max?.[i] ?? '-'} km/h<br>
+            Barometer: ${d.daily.pressure_msl_mean?.[i] ?? '-'} hPa<br>
+            Day grade: ${d.daily.pressure_msl_mean?.[i] != null ? baroGrade(d.daily.pressure_msl_mean[i]) : '-'}
+          </div>
+        `).join('');
+      }catch(err){
+        console.log(err);
+        box.innerHTML = `
+          <div class="item warn">
+            API failed<br><br>
+            Day temp: 20°C<br>
+            Night temp: 14°C<br>
+            Wind: 12 km/h<br>
+            Barometer: 1012 hPa<br>
+            Day grade: Good
+          </div>
+        `;
+      }
+    }
+
+    function runLegal(){
+      const fish = getFish(document.getElementById('legalFish').value);
+      const sizeRaw = document.getElementById('legalSize').value;
+      const size = sizeRaw === '' ? null : Number(sizeRaw);
+
+      const logs = loadLS();
+      const today = new Date().toDateString();
+
+      let caught = 0;
+      logs.forEach(l => {
+        if(l.fish === fish.name && l.day === today){
+          caught += Number(l.count || 1);
+        }
+      });
+
+      const remaining = fish.bag - caught;
+      let msg = '';
+      let cls = 'good';
+
+      if(size === null){
+        msg += `Enter size. Min: ${fish.min} cm<br>`;
+      } else if(size < fish.min){
+        msg += `❌ Too small. Min: ${fish.min} cm<br>`;
+        cls = 'bad';
+      } else {
+        msg += `✅ Size OK. Min: ${fish.min} cm<br>`;
+      }
+
+      msg += `Bag limit: ${fish.bag}<br>`;
+      msg += `Caught today: ${caught}<br>`;
+      msg += `Remaining: ${remaining > 0 ? remaining : 0}<br>`;
+
+      if(caught > fish.bag){
+        msg += `🚨 OVER BAG LIMIT<br>`;
+        cls = 'bad';
+      } else if(caught === fish.bag){
+        msg += `⚠ BAG FULL<br>`;
+        if(cls !== 'bad') cls = 'warn';
+      } else if(remaining === 1){
+        msg += `⚠ Only 1 left<br>`;
+        if(cls === 'good') cls = 'warn';
+      }
+
+      if(fish.status === 'orange'){
+        msg += `Strict species<br>`;
+        if(cls === 'good') cls = 'warn';
+      }
+
+      document.getElementById('legalBox').innerHTML = `<div class="${cls}">${msg}</div>`;
+    }
+
+    function saveCatch(){
+      const fish = getFish(document.getElementById('catchFish').value);
+      const size = document.getElementById('catchSize').value;
+      const count = Number(document.getElementById('catchCount').value || 1);
+      const notes = document.getElementById('catchNotes').value;
+
+      if(!fish){
+        alert('Choose fish');
+        return;
+      }
+      if(count <= 0){
+        alert('Count must be 1 or more');
+        return;
+      }
+
+      const list = loadLS();
+      list.unshift({
+        fish: fish.name,
+        size,
+        count,
+        notes,
+        day: new Date().toDateString(),
+        created: new Date().toLocaleString()
+      });
+      saveLS(list);
+
+      document.getElementById('catchSize').value = '';
+      document.getElementById('catchCount').value = '1';
+      document.getElementById('catchNotes').value = '';
+
+      renderCatch();
+
+      document.getElementById('legalFish').value = fish.key;
+      runLegal();
+    }
+
+    function renderCatch(){
+      const list = loadLS();
+      document.getElementById('catchList').innerHTML = list.map((c,i)=>`
+        <div class="item">
+          <b>${c.fish}</b> (${c.count})<br>
+          ${c.size || '-'} cm<br>
+          ${c.notes || ''}<br>
+          ${c.day}<br>
+          <button onclick="delCatch(${i})">Delete</button>
+        </div>
+      `).join('') || 'No logs';
+    }
+
+    function delCatch(i){
+      const list = loadLS();
+      list.splice(i,1);
+      saveLS(list);
+      renderCatch();
+      runLegal();
+    }
+
+    fill();
+    renderCatch();
+  </script>
 </body>
 </html>
