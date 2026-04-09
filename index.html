@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fishing PRO Boat</title>
   <style>
-    body{margin:0;font-family:Arial;background:#06101c;color:#fff;padding:16px}
+    body{margin:0;font-family:Arial, sans-serif;background:#06101c;color:#fff;padding:16px}
     .card{background:#0f2236;padding:14px;border-radius:12px;margin-bottom:12px}
     button{width:100%;padding:12px;border:none;border-radius:10px;background:#00c2ff;color:#000;font-weight:bold;margin-top:8px}
     input,select{width:100%;padding:10px;margin-top:6px;border:none;border-radius:8px}
@@ -74,26 +74,63 @@
       return 'Low';
     }
 
+    function windText(deg){
+      if (deg == null) return '-';
+      if (deg >= 337.5 || deg < 22.5) return 'N';
+      if (deg < 67.5) return 'NE';
+      if (deg < 112.5) return 'E';
+      if (deg < 157.5) return 'SE';
+      if (deg < 202.5) return 'S';
+      if (deg < 247.5) return 'SW';
+      if (deg < 292.5) return 'W';
+      return 'NW';
+    }
+
+    function fishingGrade(wind, pressure){
+      if (wind == null || pressure == null) return 'Unknown';
+      if (wind <= 18 && pressure >= 1010) return 'GOOD';
+      if (wind <= 28 && pressure >= 1003) return 'OK';
+      return 'BAD';
+    }
+
+    function fishingGradeClass(grade){
+      if (grade === 'GOOD') return 'good';
+      if (grade === 'OK') return 'warn';
+      if (grade === 'BAD') return 'bad';
+      return '';
+    }
+
     async function loadWeather(){
       const box = document.getElementById('weatherBox');
       box.innerHTML = 'Loading...';
 
       try{
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,pressure_msl_mean&timezone=auto');
+        const res = await fetch(
+          'https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_direction_10m_dominant,pressure_msl_mean&timezone=auto'
+        );
         if(!res.ok) throw new Error('API fail');
+
         const d = await res.json();
         if(!d.daily || !d.daily.time?.length) throw new Error('No data');
 
-        box.innerHTML = d.daily.time.slice(0,5).map((day,i)=>`
-          <div class="item">
-            <b>${day}</b><br>
-            Day temp: ${d.daily.temperature_2m_max?.[i] ?? '-'}°C<br>
-            Night temp: ${d.daily.temperature_2m_min?.[i] ?? '-'}°C<br>
-            Wind: ${d.daily.wind_speed_10m_max?.[i] ?? '-'} km/h<br>
-            Barometer: ${d.daily.pressure_msl_mean?.[i] ?? '-'} hPa<br>
-            Day grade: ${d.daily.pressure_msl_mean?.[i] != null ? baroGrade(d.daily.pressure_msl_mean[i]) : '-'}
-          </div>
-        `).join('');
+        box.innerHTML = d.daily.time.slice(0,5).map((day,i)=>{
+          const wind = d.daily.wind_speed_10m_max?.[i];
+          const pressure = d.daily.pressure_msl_mean?.[i];
+          const grade = fishingGrade(wind, pressure);
+
+          return `
+            <div class="item">
+              <b>${day}</b><br>
+              Day temp: ${d.daily.temperature_2m_max?.[i] ?? '-'}°C<br>
+              Night temp: ${d.daily.temperature_2m_min?.[i] ?? '-'}°C<br>
+              Wind: ${wind ?? '-'} km/h<br>
+              Wind dir: ${d.daily.wind_direction_10m_dominant?.[i] ?? '-'}° (${windText(d.daily.wind_direction_10m_dominant?.[i])})<br>
+              Barometer: ${pressure ?? '-'} hPa<br>
+              Barometer grade: ${pressure != null ? baroGrade(pressure) : '-'}<br>
+              Fishing rating: <span class="${fishingGradeClass(grade)}">${grade}</span>
+            </div>
+          `;
+        }).join('');
       }catch(err){
         console.log(err);
         box.innerHTML = `
@@ -102,8 +139,10 @@
             Day temp: 20°C<br>
             Night temp: 14°C<br>
             Wind: 12 km/h<br>
+            Wind dir: NW<br>
             Barometer: 1012 hPa<br>
-            Day grade: Good
+            Barometer grade: Good<br>
+            Fishing rating: <span class="good">GOOD</span>
           </div>
         `;
       }
