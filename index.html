@@ -2,105 +2,194 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fishing PRO</title>
+<title>Fishing PRO Boat</title>
 
 <style>
-body{background:#07111f;color:white;font-family:Arial;margin:0;padding:10px;}
-.card{background:#0f1c2e;padding:12px;border-radius:12px;margin-bottom:12px;}
-button{width:100%;padding:10px;margin-top:8px;background:#47c7ff;border:none;border-radius:8px;font-weight:bold;}
-input,select{width:100%;padding:8px;margin-top:5px;border-radius:6px;border:none;}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#06101c;
+  color:white;
+  padding:16px;
+}
+.card{
+  background:#0f2236;
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#00c2ff;
+  font-weight:bold;
+}
+.item{
+  background:rgba(255,255,255,0.06);
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+}
+.good{color:#35d07f}
+.warn{color:#f1c40f}
+.bad{color:#ff6666}
 </style>
-
 </head>
+
 <body>
 
-<h2>🎣 Fishing PRO</h2>
+<h2>🎣 Fishing PRO Boat</h2>
 
-<!-- WHAT TO USE -->
 <div class="card">
-<h3>🎯 What to use NOW</h3>
-<button onclick="smart()">Get Advice</button>
-<div id="ai"></div>
+  <h3>Weather</h3>
+  <button onclick="loadWeather()">Load Weather</button>
+  <div id="weatherBox">Tap button</div>
 </div>
 
-<!-- LEGAL -->
 <div class="card">
-<h3>⚖️ Legal Checker</h3>
-<select id="species"></select>
-<input id="size" type="number" placeholder="Size cm">
-<button onclick="check()">Check</button>
-<div id="result"></div>
-</div>
+  <h3>Legal + Catch</h3>
 
-<!-- LOG -->
-<div class="card">
-<h3>📝 Session Log</h3>
-<input id="date" type="date">
-<input id="spot" placeholder="Spot">
-<input id="sp" placeholder="Species">
-<button onclick="saveLog()">Save</button>
-<div id="logs"></div>
-</div>
+  <select id="fish"></select>
+  <input id="size" placeholder="Size cm">
 
-<!-- FORECAST -->
-<div class="card">
-<h3>📅 Forecast</h3>
-<div id="forecast"></div>
+  <button onclick="check()">Check Legal</button>
+  <div id="legalBox"></div>
+
+  <hr>
+
+  <input id="count" value="1">
+  <input id="notes" placeholder="Notes">
+
+  <button onclick="save()">Save Catch</button>
+  <div id="log"></div>
 </div>
 
 <script>
 
-// FISH DB
-const fish=[
-{name:"Kob",min:60,bag:5,bait:"Chokka"},
-{name:"Yellowtail",min:60,bag:10,bait:"Live bait"},
-{name:"Hottentot",min:22,bag:10,bait:"Red bait"},
-{name:"Shad",min:30,bag:4,bait:"Sardine"}
+// ===== DATA =====
+const fishDB = [
+ {name:'Kob',min:60,bag:5},
+ {name:'Geelbek',min:60,bag:2},
+ {name:'Dageraad',min:40,bag:1},
+ {name:'Shad',min:30,bag:4}
 ];
 
-// LOAD
-species.innerHTML=fish.map(f=>`<option>${f.name}</option>`).join("");
+// ===== INIT =====
+function fill(){
+  fish.innerHTML = fishDB.map(f=>`<option>${f.name}</option>`).join('');
+}
+fill();
 
-// LEGAL
+// ===== WEATHER =====
+function baro(p){
+  if(p>=1018) return 'High';
+  if(p>=1010) return 'Good';
+  if(p>=1003) return 'Falling';
+  return 'Low';
+}
+
+async function loadWeather(){
+  weatherBox.innerHTML='Loading...';
+
+  try{
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,pressure_msl_mean&timezone=auto");
+    const d = await res.json();
+
+    weatherBox.innerHTML = d.daily.time.slice(0,3).map((day,i)=>`
+      <div class="item">
+        <b>${day}</b><br>
+        Day: ${d.daily.temperature_2m_max[i]}°C<br>
+        Night: ${d.daily.temperature_2m_min[i]}°C<br>
+        Wind: ${d.daily.wind_speed_10m_max[i]} km/h<br>
+        Baro: ${d.daily.pressure_msl_mean[i]}<br>
+        Grade: ${baro(d.daily.pressure_msl_mean[i])}
+      </div>
+    `).join('');
+
+  }catch{
+    weatherBox.innerHTML=`
+      <div class="item warn">
+        API fail – fallback<br><br>
+        Day: 20°C<br>
+        Night: 14°C<br>
+        Wind: 12 km/h<br>
+        Grade: Good
+      </div>
+    `;
+  }
+}
+
+// ===== STORAGE =====
+function getLogs(){
+  return JSON.parse(localStorage.getItem("logs")||"[]");
+}
+function setLogs(v){
+  localStorage.setItem("logs",JSON.stringify(v));
+}
+
+// ===== LEGAL =====
 function check(){
-let f=fish.find(x=>x.name==species.value);
-result.innerHTML=size.value>=f.min?"✅ Legal":"❌ Too small";
+  const f = fishDB.find(x=>x.name===fish.value);
+  const sizeVal = Number(size.value);
+
+  let caught=0;
+  getLogs().forEach(l=>{
+    if(l.fish===f.name && l.day===new Date().toDateString()){
+      caught+=l.count;
+    }
+  });
+
+  let left = f.bag - caught;
+  let txt='';
+  let cls='good';
+
+  if(sizeVal && sizeVal<f.min){
+    txt+='❌ Too small<br>';
+    cls='bad';
+  }else{
+    txt+='✅ Size OK<br>';
+  }
+
+  txt+=`Bag: ${f.bag}<br>`;
+  txt+=`Caught: ${caught}<br>`;
+  txt+=`Left: ${left<0?0:left}<br>`;
+
+  if(caught>f.bag){
+    txt+='🚨 OVER LIMIT';
+    cls='bad';
+  }
+
+  legalBox.innerHTML=`<div class="${cls}">${txt}</div>`;
 }
 
-// LOG
-let logsData=JSON.parse(localStorage.getItem("logs")||"[]");
+// ===== SAVE =====
+function save(){
+  const f = fish.value;
+  const c = Number(count.value||1);
 
-function saveLog(){
-logsData.push({
-date:date.value,
-spot:spot.value,
-species:sp.value
-});
-localStorage.setItem("logs",JSON.stringify(logsData));
-renderLogs();
+  const logs = getLogs();
+  logs.unshift({
+    fish:f,
+    count:c,
+    day:new Date().toDateString()
+  });
+
+  setLogs(logs);
+  render();
+  check();
 }
 
-function renderLogs(){
-logs.innerHTML=logsData.map(l=>`
-<div>${l.date} - ${l.species}</div>
-`).join("");
+// ===== RENDER =====
+function render(){
+  log.innerHTML = getLogs().map(l=>`
+    <div class="item">
+      ${l.fish} (${l.count})
+    </div>
+  `).join('');
 }
-renderLogs();
-
-// SMART
-function smart(){
-let f=fish[Math.floor(Math.random()*fish.length)];
-ai.innerHTML=`Try: <b>${f.name}</b><br>Bait: ${f.bait}`;
-}
-
-// FORECAST
-fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max&timezone=auto")
-.then(r=>r.json())
-.then(d=>{
-forecast.innerHTML=d.daily.time.slice(0,3).map((day,i)=>
-`${day}: ${d.daily.temperature_2m_max[i]}°`
-).join("<br>");
-});
+render();
 
 </script>
 
