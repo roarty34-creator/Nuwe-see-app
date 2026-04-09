@@ -49,6 +49,7 @@
       color:#000;
       font-weight:bold;
       margin-top:8px;
+      cursor:pointer;
     }
     input,select{
       width:100%;
@@ -117,6 +118,7 @@
       background:var(--accent);
       color:#000;
     }
+    .mini{font-size:12px;opacity:.85}
   </style>
 </head>
 <body>
@@ -154,6 +156,10 @@
 
   <div class="card">
     <h3>AI Fish ID</h3>
+
+    <input id="fishPhotoUpload" type="file" accept="image/*" onchange="previewFishPhoto(event)">
+    <div id="fishPhotoPreview" class="item">No photo selected</div>
+
     <select id="idType">
       <option value="">Shape</option>
       <option value="long">Long</option>
@@ -185,6 +191,7 @@
       <option value="medium">Medium</option>
       <option value="big">Big</option>
     </select>
+
     <button onclick="runFishId()">Identify</button>
     <div id="idBox">Select options</div>
   </div>
@@ -209,10 +216,15 @@
   <div class="card">
     <h3>Catch Log</h3>
     <select id="catchFish"></select>
-    <input id="catchSize" placeholder="Size cm">
-    <input id="catchCount" value="1" placeholder="Count">
     <input id="catchNotes" placeholder="Notes">
+
+    <div id="lengthRows">
+      <input class="catchLength" type="number" placeholder="Length cm">
+    </div>
+
+    <button onclick="addLengthRow()">Add another fish length</button>
     <button onclick="saveCatch()">Save Catch</button>
+
     <div id="catchList"></div>
   </div>
 </section>
@@ -414,6 +426,22 @@ function renderRigs(){
   `).join('');
 }
 
+function previewFishPhoto(event){
+  const file = event.target.files[0];
+  const box = document.getElementById('fishPhotoPreview');
+
+  if(!file){
+    box.innerHTML = 'No photo selected';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    box.innerHTML = `<img src="${e.target.result}" alt="Uploaded fish photo">`;
+  };
+  reader.readAsDataURL(file);
+}
+
 function runFishId(){
   const type = document.getElementById('idType').value;
   const color = document.getElementById('idColor').value;
@@ -421,6 +449,7 @@ function runFishId(){
   const tail = document.getElementById('idTail').value;
   const mouth = document.getElementById('idMouth').value;
   const box = document.getElementById('idBox');
+  const preview = document.getElementById('fishPhotoPreview').innerHTML;
 
   const scored = fishDB.map(f => {
     let score = 0;
@@ -445,19 +474,22 @@ function runFishId(){
   }).filter(f => f.score > 0).sort((a,b) => b.score - a.score);
 
   if(!scored.length){
-    box.innerHTML = 'No strong match';
+    box.innerHTML = `<div class="item">No strong match</div>`;
     return;
   }
 
   const f = scored[0];
   box.innerHTML = `
     <div class="item">
-      <b>Best match: ${f.name}</b><br>
-      Min size: ${f.min} cm<br>
-      Bag limit: ${f.bag}/day<br>
-      Bait: ${f.bait}<br>
-      Rig: ${f.rig}<br>
-      Confidence: ${f.score}%
+      ${preview}
+      <div style="margin-top:10px">
+        <b>Best match: ${f.name}</b><br>
+        Min size: ${f.min} cm<br>
+        Bag limit: ${f.bag}/day<br>
+        Bait: ${f.bait}<br>
+        Rig: ${f.rig}<br>
+        Confidence: ${f.score}%
+      </div>
     </div>
   `;
 }
@@ -513,35 +545,50 @@ function runLegal(){
   document.getElementById('legalBox').innerHTML = `<div class="${cls}">${msg}</div>`;
 }
 
+function addLengthRow(){
+  const rowBox = document.getElementById('lengthRows');
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.placeholder = 'Length cm';
+  input.className = 'catchLength';
+  rowBox.appendChild(input);
+}
+
 function saveCatch(){
   const fish = getFish(document.getElementById('catchFish').value);
-  const size = document.getElementById('catchSize').value;
-  const count = Number(document.getElementById('catchCount').value || 1);
-  const notes = document.getElementById('catchNotes').value;
+  const notes = document.getElementById('catchNotes').value.trim();
+  const lengthInputs = Array.from(document.querySelectorAll('.catchLength'));
 
   if(!fish){
     alert('Choose fish');
     return;
   }
-  if(count <= 0){
-    alert('Count must be 1 or more');
+
+  const lengths = lengthInputs
+    .map(i => Number(i.value))
+    .filter(v => !isNaN(v) && v > 0);
+
+  if(!lengths.length){
+    alert('Enter at least one fish length');
     return;
   }
 
   const list = loadLS();
   list.unshift({
     fish: fish.name,
-    size,
-    count,
+    lengths,
+    count: lengths.length,
     notes,
     day: new Date().toDateString(),
     created: new Date().toLocaleString()
   });
+
   saveLS(list);
 
-  document.getElementById('catchSize').value = '';
-  document.getElementById('catchCount').value = '1';
   document.getElementById('catchNotes').value = '';
+  document.getElementById('lengthRows').innerHTML = `
+    <input class="catchLength" type="number" placeholder="Length cm">
+  `;
 
   renderCatch();
   document.getElementById('legalFish').value = fish.key;
@@ -553,7 +600,7 @@ function renderCatch(){
   document.getElementById('catchList').innerHTML = list.map((c,i)=>`
     <div class="item">
       <b>${c.fish}</b> (${c.count})<br>
-      ${c.size || '-'} cm<br>
+      Lengths: ${(c.lengths || []).join(', ')} cm<br>
       ${c.notes || ''}<br>
       ${c.day}<br>
       <button onclick="delCatch(${i})">Delete</button>
