@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App V6</title>
+  <title>Stilbaai Fishing App</title>
   <meta name="theme-color" content="#06111b" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -16,12 +16,12 @@
     <header class="topbar">
       <div>
         <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">PRO V6 Final</p>
+        <p class="subtitle">Dark Ocean Final</p>
       </div>
 
       <div class="top-actions">
         <button class="install-btn hidden" id="installBtn">Install</button>
-        <div class="badge">V6</div>
+        <div class="badge">PRO</div>
       </div>
     </header>
 
@@ -61,6 +61,8 @@
     </nav>
 
     <main class="content">
+
+      <!-- HOME -->
       <section class="tab-content active" id="home">
         <div class="grid two">
           <div class="card">
@@ -94,6 +96,16 @@
           </div>
         </div>
 
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div class="index-grid">
+            <div class="index-btn" onclick="switchTab('fish')">Fish</div>
+            <div class="index-btn" onclick="switchTab('rigs')">Rigs</div>
+            <div class="index-btn" onclick="switchTab('map')">Map</div>
+            <div class="index-btn" onclick="switchTab('log')">Log Catch</div>
+          </div>
+        </div>
+
         <div class="grid two">
           <div class="card">
             <h3>Quick Stats</h3>
@@ -124,6 +136,7 @@
         </div>
       </section>
 
+      <!-- WEATHER -->
       <section class="tab-content" id="weather">
         <div class="grid two">
           <div class="card">
@@ -149,6 +162,7 @@
         </div>
       </section>
 
+      <!-- TIDES -->
       <section class="tab-content" id="tides">
         <div class="grid two">
           <div class="card">
@@ -166,6 +180,7 @@
         </div>
       </section>
 
+      <!-- FISH -->
       <section class="tab-content" id="fish">
         <div class="card">
           <h3>Fish Index</h3>
@@ -179,6 +194,7 @@
         <div class="fish-grid" id="fishGrid"></div>
       </section>
 
+      <!-- FISH DETAIL -->
       <section class="tab-content" id="fishDetail">
         <div class="card" id="fishDetailCard">
           <h3>Fish Detail</h3>
@@ -186,6 +202,7 @@
         </div>
       </section>
 
+      <!-- LEGAL -->
       <section class="tab-content" id="legal">
         <div class="grid two">
           <div class="card">
@@ -207,14 +224,17 @@
         </div>
       </section>
 
+      <!-- RIGS -->
       <section class="tab-content" id="rigs">
         <div class="card">
           <h3>Rig Index</h3>
           <div class="index-grid" id="rigIndex"></div>
         </div>
+
         <div class="rig-grid" id="rigGrid"></div>
       </section>
 
+      <!-- MAP -->
       <section class="tab-content" id="map">
         <div class="grid two">
           <div class="card">
@@ -227,8 +247,14 @@
             <div class="spot-list" id="spotList"></div>
           </div>
         </div>
+
+        <div class="card">
+          <h3>Quick Spot Select</h3>
+          <div id="spotIndex" class="index-grid"></div>
+        </div>
       </section>
 
+      <!-- PLANNER -->
       <section class="tab-content" id="planner">
         <div class="grid two">
           <div class="card">
@@ -252,6 +278,7 @@
         </div>
       </section>
 
+      <!-- LOG -->
       <section class="tab-content" id="log">
         <div class="grid two">
           <div class="card">
@@ -294,4 +321,4 @@
 
   <script src="app.js"></script>
 </body>
-              </html>
+                  </html>
