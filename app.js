@@ -2,20 +2,20 @@ const LAT = -34.37;
 const LON = 21.42;
 
 const fishData = [
-  { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard", rig:"2-hook bottom rig", image:"images/kob.jpg", notes:"Sterk bodem setup vir groter vis." },
-  { name:"geelstert", minSize:60, bagLimit:10, bait:"live bait, sardine, plug", rig:"surface / drift rig", image:"images/geelstert.jpg", notes:"Werk goed met surface presentation." },
-  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", rig:"spin rig", image:"images/bonito.jpg", notes:"Vinnige retrieve werk goed." },
-  { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka", rig:"bottom rig", image:"images/red-roman.jpg", notes:"Hou aas naby bodem." },
-  { name:"snapper", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"images/snapper.jpg", notes:"Kort en netjiese presentation." },
-  { name:"silverfish", minSize:25, bagLimit:10, bait:"okka strips, sard", rig:"light bottom rig", image:"images/silverfish.jpg", notes:"Ligte tackle werk mooi." },
-  { name:"red steenbras", minSize:60, bagLimit:1, bait:"chokka, sard", rig:"heavy bottom rig", image:"images/red-steenbras.jpg", notes:"Sterk tackle nodig." },
-  { name:"yellow belly", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"images/yellow-belly.jpg", notes:"Hou die rig eenvoudig." },
-  { name:"hottentot", minSize:22, bagLimit:10, bait:"red bait, prawn, mussel", rig:"small hook bottom rig", image:"images/hottentot.jpg", notes:"Kleiner hoeke werk beter." },
-  { name:"geelbek", minSize:60, bagLimit:5, bait:"chokka, sard, live bait", rig:"long leader rig", image:"images/geelbek.jpg", notes:"Netjiese lang leader help." },
-  { name:"dageraad", minSize:40, bagLimit:1, bait:"okka, red bait", rig:"bottom rig", image:"images/dageraad.jpg", notes:"Hou by sterk bodem setup." },
-  { name:"santer", minSize:23, bagLimit:10, bait:"okka, sard strips", rig:"light bottom rig", image:"images/santer.jpg", notes:"Goeie all-round bodemvis." },
-  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", rig:"spinning rig", image:"images/elf.jpg", notes:"Werk lekker op aktiewe retrieve." },
-  { name:"poensie", minSize:40, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"images/poensie.jpg", notes:"Hou aas laag." }
+  { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard", rig:"2-hook bottom rig", image:"fish-cape-cob.png", notes:"Sterk bodem setup vir groter vis." },
+  { name:"geelstert", minSize:60, bagLimit:10, bait:"live bait, sardine, plug", rig:"surface / drift rig", image:"fish-yellowtail.png", notes:"Werk goed met surface presentation." },
+  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", rig:"spin rig", image:"fish-bonito.png", notes:"Vinnige retrieve werk goed." },
+  { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka", rig:"bottom rig", image:"fish-red-roman.png", notes:"Hou aas naby bodem." },
+  { name:"snapper", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"fish-snapper.png", notes:"Kort en netjiese presentation." },
+  { name:"silverfish", minSize:25, bagLimit:10, bait:"okka strips, sard", rig:"light bottom rig", image:"fish-carpenter.png", notes:"Ligte tackle werk mooi." },
+  { name:"red steenbras", minSize:60, bagLimit:1, bait:"chokka, sard", rig:"heavy bottom rig", image:"fish-red-steenbras.png", notes:"Sterk tackle nodig." },
+  { name:"yellow belly", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"fish-yellow-belly.png", notes:"Hou die rig eenvoudig." },
+  { name:"hottentot", minSize:22, bagLimit:10, bait:"red bait, prawn, mussel", rig:"small hook bottom rig", image:"fish-hottentot.png", notes:"Kleiner hoeke werk beter." },
+  { name:"geelbek", minSize:60, bagLimit:5, bait:"chokka, sard, live bait", rig:"long leader rig", image:"fish-snapper.png", notes:"Gebruik selfde foto vir nou." },
+  { name:"dageraad", minSize:40, bagLimit:1, bait:"okka, red bait", rig:"bottom rig", image:"fish-dageraad.png", notes:"Hou by sterk bodem setup." },
+  { name:"santer", minSize:23, bagLimit:10, bait:"okka, sard strips", rig:"light bottom rig", image:"fish-carpenter.png", notes:"Selfde tipe vis vir nou." },
+  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", rig:"spinning rig", image:"fish-elf-shad.png", notes:"Werk lekker op retrieve." },
+  { name:"poensie", minSize:40, bagLimit:5, bait:"okka, sard", rig:"bottom rig", image:"fish-red-roman.png", notes:"Gebruik roman foto vir nou." }
 ];
 
 const spots = [
@@ -43,6 +43,7 @@ const tideNotes = document.getElementById("tideNotes");
 const logFish = document.getElementById("logFish");
 const catchList = document.getElementById("catchList");
 const spotList = document.getElementById("spotList");
+const spotIndex = document.getElementById("spotIndex");
 
 function switchTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -244,6 +245,35 @@ function showAllRigs() {
   `).join("");
 }
 
+function renderSpotList() {
+  spotList.innerHTML = spots.map(spot => `
+    <div class="spot-item">
+      <strong>${spot.name}</strong><br>
+      <span class="muted">${spot.lat.toFixed(3)}, ${spot.lon.toFixed(3)}</span>
+      <p>${spot.note}</p>
+    </div>
+  `).join("");
+}
+
+function buildSpotIndex() {
+  spotIndex.innerHTML = "";
+  spots.forEach(s => {
+    const btn = document.createElement("div");
+    btn.className = "index-btn";
+    btn.textContent = s.name;
+    btn.onclick = () => {
+      switchTab("map");
+      setTimeout(() => {
+        initMap();
+        if (mapInstance) {
+          mapInstance.setView([s.lat, s.lon], 13);
+        }
+      }, 250);
+    };
+    spotIndex.appendChild(btn);
+  });
+}
+
 async function loadWeatherAndMarine() {
   try {
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=wind_speed_10m,wind_direction_10m,temperature_2m,cloud_cover&timezone=auto`;
@@ -311,16 +341,6 @@ function saveTideNotes() {
   localStorage.setItem("tideNotes", tideNotes.value);
   updateStats();
   alert("Tide notes saved.");
-}
-
-function renderSpotList() {
-  spotList.innerHTML = spots.map(spot => `
-    <div class="spot-item">
-      <strong>${spot.name}</strong><br>
-      <span class="muted">${spot.lat.toFixed(3)}, ${spot.lon.toFixed(3)}</span>
-      <p>${spot.note}</p>
-    </div>
-  `).join("");
 }
 
 function initMap() {
@@ -423,22 +443,40 @@ function renderCatchLog() {
   const list = getCatchLog();
 
   if (!list.length) {
-    catchList.innerHTML = `<div class="result-box">Nog geen catches gestoor nie.</div>`;
+    catchList.innerHTML = `<div class="result-box">Nog geen catches nie.</div>`;
     return;
   }
 
-  catchList.innerHTML = list.map(item => `
-    <div class="catch-item">
-      <div class="catch-head">
-        <strong style="text-transform:capitalize;">${item.fish}</strong>
-        <button class="delete-btn" onclick="deleteCatch(${item.id})">Delete</button>
-      </div>
-      <div><strong>Datum:</strong> ${item.date || "-"}</div>
-      <div><strong>Lengte:</strong> ${item.length || "-"} cm</div>
-      <div><strong>Plek:</strong> ${item.spot || "-"}</div>
-      <div><strong>Notas:</strong> ${item.notes || "-"}</div>
-    </div>
-  `).join("");
+  const grouped = {};
+  list.forEach(item => {
+    const key = item.date || "No date";
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(item);
+  });
+
+  catchList.innerHTML = "";
+
+  Object.keys(grouped).forEach(date => {
+    const group = grouped[date];
+    let html = `<div class="card"><h3>${date}</h3>`;
+
+    group.forEach(item => {
+      html += `
+        <div class="catch-item">
+          <div class="catch-head">
+            <strong style="text-transform:capitalize;">${item.fish}</strong>
+            <button class="delete-btn" onclick="deleteCatch(${item.id})">Delete</button>
+          </div>
+          <div><strong>Lengte:</strong> ${item.length || "-"} cm</div>
+          <div><strong>Plek:</strong> ${item.spot || "-"}</div>
+          <div><strong>Notas:</strong> ${item.notes || "-"}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+    catchList.innerHTML += html;
+  });
 }
 
 function updateStats() {
@@ -542,6 +580,7 @@ document.getElementById("importFile").addEventListener("change", (e) => {
 
 buildFishIndex();
 buildRigIndex();
+buildSpotIndex();
 renderFish(fishData);
 loadLegalOptions();
 showSavedPlan();
