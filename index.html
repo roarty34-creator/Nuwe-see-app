@@ -148,6 +148,8 @@
               <li><strong>Swell Period:</strong> <span id="weatherSwellPeriod">-</span></li>
               <li><strong>Swell Direction:</strong> <span id="weatherSwellDirection">-</span></li>
               <li><strong>Cloud Cover:</strong> <span id="weatherCloud">-</span></li>
+              <li><strong>Water Temp Max:</strong> <span id="weatherTempMax">-</span></li>
+              <li><strong>Water Temp Min:</strong> <span id="weatherTempMin">-</span></li>
             </ul>
           </div>
 
@@ -166,16 +168,14 @@
       <section class="tab-content" id="tides">
         <div class="grid two">
           <div class="card">
-            <h3>Tide Notes</h3>
-            <textarea id="tideNotes" placeholder="Skryf jou eie tide tye of notas hier..."></textarea>
-            <button class="primary-btn" id="saveTideNotesBtn">Save Tide Notes</button>
+            <h3>Tide Overview</h3>
+            <div id="tideList" class="spot-list"></div>
           </div>
 
           <div class="card">
-            <h3>Tide Reminder</h3>
-            <div class="result-box">
-              Gebruik hierdie tab vir jou eie presiese plaaslike gety notas as jy dit reeds het.
-            </div>
+            <h3>Tide Notes</h3>
+            <textarea id="tideNotes" placeholder="Skryf jou eie tide tye of notas hier..."></textarea>
+            <button class="primary-btn" id="saveTideNotesBtn">Save Tide Notes</button>
           </div>
         </div>
       </section>
@@ -188,7 +188,7 @@
         </div>
 
         <div class="card">
-          <input type="text" id="fishSearch" class="search-input" placeholder="Soek vis, bait of rig..." />
+          <input type="text" id="fishSearch" class="search-input" placeholder="Soek vis, bait, rig of sinker..." />
         </div>
 
         <div class="fish-grid" id="fishGrid"></div>
@@ -321,4 +321,4 @@
 
   <script src="app.js"></script>
 </body>
-                  </html>
+                           </html>
