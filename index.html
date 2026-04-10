@@ -13,13 +13,14 @@
       --good:#35d07f;
       --warn:#f1c40f;
       --bad:#ff6666;
-      --text:#ffffff;
+      --text:#fff;
+      --muted:#9fb6cc;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:Arial, sans-serif;
-      background:var(--bg);
+      background:linear-gradient(180deg,#06101c,#02070d);
       color:var(--text);
       padding-bottom:78px;
     }
@@ -30,16 +31,20 @@
       position:sticky;
       top:0;
       z-index:20;
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
+    .sub{font-size:12px;color:var(--muted);margin-top:4px}
     .tab{display:none;padding:12px}
     .tab.active{display:block}
     .card{
       background:var(--panel);
-      border-radius:12px;
+      border-radius:14px;
       padding:12px;
       margin-bottom:12px;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:0 8px 20px rgba(0,0,0,.22);
     }
-    h2,h3{margin:0 0 8px 0}
+    h2,h3,h4{margin:0 0 8px 0}
     button{
       width:100%;
       padding:12px;
@@ -51,13 +56,15 @@
       margin-top:8px;
       cursor:pointer;
     }
-    input,select{
+    input,select,textarea{
       width:100%;
       padding:10px;
       margin-top:6px;
       border:none;
       border-radius:8px;
+      font:inherit;
     }
+    textarea{min-height:70px;resize:vertical}
     .item{
       background:var(--panel2);
       padding:10px;
@@ -69,7 +76,7 @@
       grid-template-columns:repeat(2,1fr);
       gap:10px;
     }
-    @media (min-width:800px){
+    @media (min-width:850px){
       .grid{grid-template-columns:repeat(3,1fr)}
     }
     img{
@@ -96,6 +103,7 @@
     .good{color:var(--good);font-weight:bold}
     .warn{color:var(--warn);font-weight:bold}
     .bad{color:var(--bad);font-weight:bold}
+    .mini{font-size:12px;color:var(--muted)}
     .tabs{
       position:fixed;
       bottom:0;
@@ -105,6 +113,7 @@
       grid-template-columns:repeat(4,1fr);
       background:#0a2138;
       z-index:30;
+      border-top:1px solid rgba(255,255,255,.08);
     }
     .tabs button{
       margin:0;
@@ -118,13 +127,13 @@
       background:var(--accent);
       color:#000;
     }
-    .mini{font-size:12px;opacity:.85}
   </style>
 </head>
 <body>
 
 <header>
   <h2>🎣 Fishing PRO Boat</h2>
+  <div class="sub">Weather • Rigs • Fish DB • Legal • Catch • Kob calculator</div>
 </header>
 
 <section id="home" class="tab active">
@@ -135,10 +144,18 @@
   </div>
 
   <div class="card">
-    <h3>Fish Engine</h3>
+    <h3>Smart Fish Engine</h3>
     <select id="engineFish"></select>
     <button onclick="showEngine()">Show Engine</button>
     <div id="engineBox">Choose fish and tap button</div>
+  </div>
+
+  <div class="card">
+    <h3>Kob Ouderdom Calculator</h3>
+    <input id="kobLength" type="number" placeholder="Kob length cm">
+    <button onclick="runKobCalc()">Calculate</button>
+    <div id="kobCalcBox">Enter kob length</div>
+    <div class="mini">Ouderdom is net ’n rowwe skatting.</div>
   </div>
 </section>
 
@@ -156,7 +173,6 @@
 
   <div class="card">
     <h3>AI Fish ID</h3>
-
     <input id="fishPhotoUpload" type="file" accept="image/*" onchange="previewFishPhoto(event)">
     <div id="fishPhotoPreview" class="item">No photo selected</div>
 
@@ -238,20 +254,233 @@
 
 <script>
 const fishDB = [
-  {name:'Kob', key:'kob', min:60, bag:5, status:'green', type:'long', color:'silver', zone:'bottom', tail:'rounded', mouth:'big', bait:'Chokka + pilchard', rig:'Kob rig', depth:'Bottom channels', photo:'images/fish-cape-cob.png', rigPhoto:'images/rig-kob.jpg', notes:'Strong boat target on channels and reef edges.'},
-  {name:'Yellowtail', key:'yellowtail', min:0, bag:10, status:'green', type:'torpedo', color:'blue', zone:'surface', tail:'forked', mouth:'medium', bait:'Octopus leg', rig:'Yellowtail drift rig', depth:'Surface to mid', photo:'images/fish-yellowtail.png', rigPhoto:'images/rig-yellowtail.jpg', notes:'Look for bait, birds and current lines.'},
-  {name:'Geelbek', key:'geelbek', min:60, bag:2, status:'orange', type:'long', color:'silver', zone:'mid', tail:'forked', mouth:'medium', bait:'Pilchard', rig:'Drift rig', depth:'Mid water reefs', photo:'images/fish-geelbek.png', rigPhoto:'images/rig-geelbek.jpg', notes:'Strict limits species.'},
-  {name:'Hottentot', key:'hottentot', min:22, bag:10, status:'green', type:'round', color:'silver', zone:'reef', tail:'forked', mouth:'small', bait:'Pilchard + chokka', rig:'Reef rig', depth:'Shallow reef', photo:'images/fish-hottentot.png', rigPhoto:'images/rig-reef.jpg', notes:'Smaller hooks near reef.'},
-  {name:'Red Roman', key:'redroman', min:30, bag:2, status:'green', type:'round', color:'red', zone:'reef', tail:'rounded', mouth:'medium', bait:'Squid', rig:'Reef rig', depth:'Rocky reef', photo:'images/fish-red-roman.png', rigPhoto:'images/rig-reef.jpg', notes:'Fish close to hard structure.'},
-  {name:'Shad', key:'shad', min:30, bag:4, status:'green', type:'long', color:'silver', zone:'surface', tail:'forked', mouth:'big', bait:'Spoon / sardine', rig:'Spinning rig', depth:'Surface', photo:'images/fish-elf-shad.png', rigPhoto:'images/rig-spin.jpg', notes:'Surface activity.'},
-  {name:'Silverfish', key:'silverfish', min:35, bag:5, status:'green', type:'round', color:'silver', zone:'reef', tail:'forked', mouth:'small', bait:'Red bait', rig:'Reef rig', depth:'Reef patches', photo:'images/fish-carpenter.png', rigPhoto:'images/rig-reef.jpg', notes:'Mixed reef patches.'},
-  {name:'Dageraad', key:'dageraad', min:40, bag:1, status:'orange', type:'round', color:'red', zone:'reef', tail:'rounded', mouth:'small', bait:'Squid / red bait', rig:'Reef rig', depth:'Deep reef', photo:'images/fish-dageraad.png', rigPhoto:'images/rig-reef.jpg', notes:'Strict limits species.'}
+  {
+    name:'Kob',
+    key:'kob',
+    min:60,
+    bag:5,
+    status:'green',
+    type:'long',
+    color:'silver',
+    zone:'bottom',
+    tail:'rounded',
+    mouth:'big',
+    bait:'Chokka + pilchard',
+    rig:'Kob rig',
+    depth:'Bottom channels',
+    photo:'images/fish-cape-cob.png',
+    rigPhoto:'images/rig-kob.jpg',
+    notes:'Strong boat target on channels and reef edges.'
+  },
+  {
+    name:'Yellowtail',
+    key:'yellowtail',
+    min:0,
+    bag:10,
+    status:'green',
+    type:'torpedo',
+    color:'blue',
+    zone:'surface',
+    tail:'forked',
+    mouth:'medium',
+    bait:'Octopus leg',
+    rig:'Yellowtail drift rig',
+    depth:'Surface to mid',
+    photo:'images/fish-yellowtail.png',
+    rigPhoto:'images/rig-yellowtail.jpg',
+    notes:'Look for bait, birds and current lines.'
+  },
+  {
+    name:'Geelbek',
+    key:'geelbek',
+    min:60,
+    bag:2,
+    status:'orange',
+    type:'long',
+    color:'silver',
+    zone:'mid',
+    tail:'forked',
+    mouth:'medium',
+    bait:'Pilchard',
+    rig:'Drift rig',
+    depth:'Mid water reefs',
+    photo:'images/fish-geelbek.png',
+    rigPhoto:'images/rig-geelbek.jpg',
+    notes:'Strict limits species.'
+  },
+  {
+    name:'Hottentot',
+    key:'hottentot',
+    min:22,
+    bag:10,
+    status:'green',
+    type:'round',
+    color:'silver',
+    zone:'reef',
+    tail:'forked',
+    mouth:'small',
+    bait:'Pilchard + chokka',
+    rig:'Reef rig',
+    depth:'Shallow reef',
+    photo:'images/fish-hottentot.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Smaller hooks near reef.'
+  },
+  {
+    name:'Red Roman',
+    key:'redroman',
+    min:30,
+    bag:2,
+    status:'green',
+    type:'round',
+    color:'red',
+    zone:'reef',
+    tail:'rounded',
+    mouth:'medium',
+    bait:'Squid',
+    rig:'Reef rig',
+    depth:'Rocky reef',
+    photo:'images/fish-red-roman.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Fish close to hard structure.'
+  },
+  {
+    name:'Shad',
+    key:'shad',
+    min:30,
+    bag:4,
+    status:'green',
+    type:'long',
+    color:'silver',
+    zone:'surface',
+    tail:'forked',
+    mouth:'big',
+    bait:'Spoon / sardine',
+    rig:'Spinning rig',
+    depth:'Surface',
+    photo:'images/fish-elf-shad.png',
+    rigPhoto:'images/rig-spin.jpg',
+    notes:'Surface activity.'
+  },
+  {
+    name:'Silverfish',
+    key:'silverfish',
+    min:35,
+    bag:5,
+    status:'green',
+    type:'round',
+    color:'silver',
+    zone:'reef',
+    tail:'forked',
+    mouth:'small',
+    bait:'Red bait',
+    rig:'Reef rig',
+    depth:'Reef patches',
+    photo:'images/fish-carpenter.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Mixed reef patches.'
+  },
+  {
+    name:'Dageraad',
+    key:'dageraad',
+    min:40,
+    bag:1,
+    status:'orange',
+    type:'round',
+    color:'red',
+    zone:'reef',
+    tail:'rounded',
+    mouth:'small',
+    bait:'Squid / red bait',
+    rig:'Reef rig',
+    depth:'Deep reef',
+    photo:'images/fish-dageraad.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Strict limits species.'
+  },
+  {
+    name:'Yellowbelly',
+    key:'yellowbelly',
+    min:60,
+    bag:2,
+    status:'orange',
+    type:'round',
+    color:'yellow',
+    zone:'reef',
+    tail:'rounded',
+    mouth:'small',
+    bait:'Squid',
+    rig:'Reef rig',
+    depth:'Hard reef',
+    photo:'images/fish-yellow-belly.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Strict limits, larger fish only.'
+  },
+  {
+    name:'Bonito',
+    key:'bonito',
+    min:0,
+    bag:10,
+    status:'green',
+    type:'torpedo',
+    color:'blue',
+    zone:'surface',
+    tail:'forked',
+    mouth:'medium',
+    bait:'Spoon / lure',
+    rig:'Spin rig',
+    depth:'Surface',
+    photo:'images/fish-bonito.png',
+    rigPhoto:'images/rig-spin.jpg',
+    notes:'Fast moving surface fish.'
+  },
+  {
+    name:'Poensie',
+    key:'poensie',
+    min:50,
+    bag:1,
+    status:'orange',
+    type:'round',
+    color:'red',
+    zone:'reef',
+    tail:'rounded',
+    mouth:'big',
+    bait:'Pilchard + chokka',
+    rig:'Reef rig',
+    depth:'Hard reef',
+    photo:'images/poensie.jpg',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Strict limits and strong tackle.'
+  },
+  {
+    name:'Snapper',
+    key:'snapper',
+    min:30,
+    bag:5,
+    status:'green',
+    type:'round',
+    color:'red',
+    zone:'reef',
+    tail:'rounded',
+    mouth:'medium',
+    bait:'Chokka / pilchard',
+    rig:'Reef rig',
+    depth:'Reef',
+    photo:'images/fish-snapper.png',
+    rigPhoto:'images/rig-reef.jpg',
+    notes:'Also known as Red Stumpnose / Santer.'
+  }
 ];
 
 const LS = 'catchLogs';
 
-function saveLS(v){ localStorage.setItem(LS, JSON.stringify(v)); }
-function loadLS(){ return JSON.parse(localStorage.getItem(LS) || '[]'); }
+function saveLS(v){
+  localStorage.setItem(LS, JSON.stringify(v));
+}
+
+function loadLS(){
+  return JSON.parse(localStorage.getItem(LS) || '[]');
+}
 
 function openTab(id, btn){
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -291,20 +520,6 @@ function windText(deg){
   return 'NW';
 }
 
-function fishingGrade(wind, pressure, swell){
-  if(wind == null || pressure == null) return 'Unknown';
-  if(wind <= 18 && pressure >= 1010 && (swell == null || swell <= 2)) return 'GOOD';
-  if(wind <= 28 && pressure >= 1003 && (swell == null || swell <= 3)) return 'OK';
-  return 'BAD';
-}
-
-function gradeClass(g){
-  if(g === 'GOOD') return 'good';
-  if(g === 'OK') return 'warn';
-  if(g === 'BAD') return 'bad';
-  return '';
-}
-
 async function loadWeather(){
   const box = document.getElementById('weatherBox');
   box.innerHTML = 'Loading...';
@@ -329,7 +544,6 @@ async function loadWeather(){
       const swell = m.daily.swell_wave_height_max?.[i];
       const wave = m.daily.wave_height_max?.[i];
       const water = m.daily.sea_surface_temperature_max?.[i];
-      const grade = fishingGrade(wind, pressure, swell);
 
       return `
         <div class="item">
@@ -342,8 +556,7 @@ async function loadWeather(){
           Swell: ${swell ?? '-'} m<br>
           Wave: ${wave ?? '-'} m<br>
           Barometer: ${pressure ?? '-'} hPa<br>
-          Barometer grade: ${pressure != null ? baroGrade(pressure) : '-'}<br>
-          Fishing rating: <span class="${gradeClass(grade)}">${grade}</span>
+          Barometer grade: ${pressure != null ? baroGrade(pressure) : '-'}
         </div>
       `;
     }).join('');
@@ -360,8 +573,7 @@ async function loadWeather(){
         Swell: 1.5 m<br>
         Wave: 1.8 m<br>
         Barometer: 1012 hPa<br>
-        Barometer grade: Good<br>
-        Fishing rating: <span class="good">GOOD</span>
+        Barometer grade: Good
       </div>
     `;
   }
@@ -369,6 +581,36 @@ async function loadWeather(){
 
 function showEngine(){
   const f = getFish(document.getElementById('engineFish').value);
+  if(!f) return;
+
+  let tip = '';
+
+  if(f.key === 'kob'){
+    tip = 'Drift channels, gutters and reef edges. Best on chokka + pilchard.';
+  } else if(f.key === 'yellowtail'){
+    tip = 'Look for birds, bait balls and current lines. Work surface to mid water.';
+  } else if(f.key === 'geelbek'){
+    tip = 'Target mid water reefs and bait holding structure. Natural pilchard works well.';
+  } else if(f.key === 'hottentot'){
+    tip = 'Fish shallow reef with small hooks close to structure.';
+  } else if(f.key === 'redroman'){
+    tip = 'Fish rocky reef and broken ground with squid.';
+  } else if(f.key === 'shad'){
+    tip = 'Target surface feeding fish with spoons or sardine.';
+  } else if(f.key === 'silverfish'){
+    tip = 'Fish reef patches close to bottom with red bait.';
+  } else if(f.key === 'dageraad'){
+    tip = 'Deep reef species. Fish carefully with natural bait.';
+  } else if(f.key === 'yellowbelly'){
+    tip = 'Work hard reef with squid near the bottom.';
+  } else if(f.key === 'bonito'){
+    tip = 'Fast moving surface fish. Use lure or spoon and keep moving.';
+  } else if(f.key === 'poensie'){
+    tip = 'Strong reef fish. Use heavy tackle and natural bait tight to structure.';
+  } else if(f.key === 'snapper'){
+    tip = 'Fish chokka or pilchard close to reef.';
+  }
+
   document.getElementById('engineBox').innerHTML = `
     <div class="item">
       <b>${f.name}</b><br>
@@ -376,7 +618,39 @@ function showEngine(){
       Rig: ${f.rig}<br>
       Depth: ${f.depth}<br>
       Min size: ${f.min} cm<br>
-      Bag limit: ${f.bag}/day
+      Bag limit: ${f.bag}/day<br>
+      Tip: ${tip}
+    </div>
+  `;
+}
+
+function estimateKobAge(lengthCm){
+  if(lengthCm <= 0) return 0;
+  if(lengthCm < 40) return 1;
+  if(lengthCm < 55) return 2;
+  if(lengthCm < 70) return 3;
+  if(lengthCm < 85) return 4;
+  if(lengthCm < 100) return 5;
+  return Math.round(5 + ((lengthCm - 100) / 12));
+}
+
+function runKobCalc(){
+  const len = Number(document.getElementById('kobLength').value || 0);
+  const box = document.getElementById('kobCalcBox');
+
+  if(!len){
+    box.innerHTML = 'Enter kob length';
+    return;
+  }
+
+  const age = estimateKobAge(len);
+  const bait = len >= 80 ? 'Big chokka + pilchard combo' : 'Chokka + pilchard';
+
+  box.innerHTML = `
+    <div class="item">
+      <b>Kob length:</b> ${len} cm<br>
+      <b>Estimated age:</b> about ${age} years<br>
+      <b>Best bait:</b> ${bait}
     </div>
   `;
 }
@@ -455,12 +729,20 @@ function runFishId(){
     let score = 0;
     let blocked = false;
 
-    if(color === 'red' && ['yellowtail','shad'].includes(f.key)) blocked = true;
-    if(color === 'blue' && ['redroman','dageraad'].includes(f.key)) blocked = true;
-    if(type === 'torpedo' && ['redroman','dageraad','hottentot','silverfish'].includes(f.key)) blocked = true;
-    if(type === 'round' && ['yellowtail','shad','kob','geelbek'].includes(f.key)) blocked = true;
-    if(zone === 'reef' && ['yellowtail','shad'].includes(f.key)) blocked = true;
-    if(zone === 'surface' && ['redroman','dageraad','hottentot','silverfish'].includes(f.key)) blocked = true;
+    if(color === 'red' && ['yellowtail','bonito','shad','kob','geelbek'].includes(f.key)) blocked = true;
+    if(color === 'blue' && ['redroman','dageraad','poensie','snapper'].includes(f.key)) blocked = true;
+    if(color === 'yellow' && f.key !== 'yellowbelly') blocked = true;
+
+    if(type === 'torpedo' && ['redroman','dageraad','poensie','hottentot','silverfish','yellowbelly','snapper'].includes(f.key)) blocked = true;
+    if(type === 'round' && ['yellowtail','bonito','shad','kob','geelbek'].includes(f.key)) blocked = true;
+
+    if(zone === 'reef' && ['yellowtail','bonito','shad'].includes(f.key)) blocked = true;
+    if(zone === 'surface' && ['redroman','dageraad','poensie','hottentot','silverfish','yellowbelly','snapper'].includes(f.key)) blocked = true;
+
+    if(tail === 'rounded' && ['yellowtail','bonito','shad','geelbek'].includes(f.key)) blocked = true;
+    if(tail === 'forked' && ['kob','redroman','dageraad','yellowbelly','poensie','snapper'].includes(f.key)) blocked = true;
+
+    if(mouth === 'small' && ['kob','shad'].includes(f.key)) blocked = true;
 
     if(blocked) return {...f, score:-999};
 
@@ -470,6 +752,10 @@ function runFishId(){
     if(tail && f.tail === tail) score += 10;
     if(mouth && f.mouth === mouth) score += 10;
 
+    if(type && f.type !== type) score -= 10;
+    if(color && f.color !== color) score -= 10;
+    if(zone && f.zone !== zone) score -= 8;
+
     return {...f, score};
   }).filter(f => f.score > 0).sort((a,b) => b.score - a.score);
 
@@ -478,19 +764,27 @@ function runFishId(){
     return;
   }
 
-  const f = scored[0];
+  const best = scored[0];
+  const others = scored.slice(1,4);
+
   box.innerHTML = `
     <div class="item">
       ${preview}
       <div style="margin-top:10px">
-        <b>Best match: ${f.name}</b><br>
-        Min size: ${f.min} cm<br>
-        Bag limit: ${f.bag}/day<br>
-        Bait: ${f.bait}<br>
-        Rig: ${f.rig}<br>
-        Confidence: ${f.score}%
+        <b>Best match: ${best.name}</b><br>
+        Min size: ${best.min} cm<br>
+        Bag limit: ${best.bag}/day<br>
+        Bait: ${best.bait}<br>
+        Rig: ${best.rig}<br>
+        Confidence: ${best.score}%
       </div>
     </div>
+    ${others.length ? `
+      <div class="item">
+        <b>Other possible matches</b><br>
+        ${others.map(o => `${o.name} (${o.score}%)`).join('<br>')}
+      </div>
+    ` : ''}
   `;
 }
 
@@ -514,15 +808,15 @@ function runLegal(){
   let cls = 'good';
 
   if(size === null){
-    msg += `Enter size. Min: ${fish.min} cm<br>`;
+    msg += `Enter size. Minimum: ${fish.min} cm<br>`;
   } else if(size < fish.min){
-    msg += `❌ Too small. Min: ${fish.min} cm<br>`;
+    msg += `❌ Too small. Minimum: ${fish.min} cm<br>`;
     cls = 'bad';
   } else {
-    msg += `✅ Size OK. Min: ${fish.min} cm<br>`;
+    msg += `✅ Size OK. Minimum: ${fish.min} cm<br>`;
   }
 
-  msg += `Bag limit: ${fish.bag}<br>`;
+  msg += `Bag limit: ${fish.bag}/day<br>`;
   msg += `Caught today: ${caught}<br>`;
   msg += `Remaining: ${remaining > 0 ? remaining : 0}<br>`;
 
