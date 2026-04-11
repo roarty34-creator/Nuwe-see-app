@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App V6</title>
+  <title>Stilbaai Fishing App V7</title>
   <meta name="theme-color" content="#06111b" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -16,9 +16,9 @@
     <header class="topbar">
       <div>
         <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">V6</p>
+        <p class="subtitle">V7</p>
       </div>
-      <div class="badge">V6</div>
+      <div class="badge">V7</div>
     </header>
 
     <section class="hero-card">
@@ -56,7 +56,6 @@
     </nav>
 
     <main class="content">
-
       <section class="tab-content active" id="home">
         <div class="grid two">
           <div class="card">
@@ -72,61 +71,19 @@
           </div>
 
           <div class="card">
-            <h3>Wind / Drift</h3>
-            <div class="visual-wrap">
-              <div class="arrow-row">
-                <div>
-                  <div class="small-label">Wind</div>
-                  <div class="big-arrow" id="windArrow">⬆</div>
-                </div>
-                <div>
-                  <div class="small-label">Drift</div>
-                  <div class="big-arrow" id="driftArrow">⬆</div>
-                </div>
-              </div>
-              <p id="windDirText">-</p>
-              <p id="driftText">-</p>
+            <h3>Quick Actions</h3>
+            <div class="index-grid">
+              <div class="index-btn" onclick="switchTab('fish')">Fish</div>
+              <div class="index-btn" onclick="switchTab('map')">Map</div>
+              <div class="index-btn" onclick="switchTab('planner')">Planner</div>
+              <div class="index-btn" onclick="switchTab('log')">Log</div>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <h3>Quick Actions</h3>
-          <div class="index-grid">
-            <div class="index-btn" onclick="switchTab('fish')">Fish</div>
-            <div class="index-btn" onclick="switchTab('map')">Map</div>
-            <div class="index-btn" onclick="switchTab('planner')">Planner</div>
-            <div class="index-btn" onclick="switchTab('log')">Log</div>
-          </div>
-        </div>
-
-        <div class="grid two">
-          <div class="card">
-            <h3>Quick Stats</h3>
-            <div class="stats-grid">
-              <div class="mini-stat">
-                <span class="mini-label">Total Catches</span>
-                <strong id="totalCatches">0</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Top Species</span>
-                <strong id="topSpecies">-</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Saved Plans</span>
-                <strong id="savedPlansCount">0</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Tide Notes</span>
-                <strong id="tideNotesState">None</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>App Status</h3>
-            <div class="result-box" id="appStatus">App gereed.</div>
-          </div>
+          <h3>App Status</h3>
+          <div class="result-box" id="appStatus">App gereed.</div>
         </div>
       </section>
 
@@ -203,7 +160,7 @@
 
           <div class="card">
             <h3>Reference</h3>
-            <p class="muted">Checker gebruik die minimum groottes in jou fish database.</p>
+            <p class="muted">Checker gebruik minimum groottes in jou fish database.</p>
           </div>
         </div>
       </section>
@@ -213,28 +170,29 @@
           <div class="card">
             <h3>Map</h3>
             <div id="mapView"></div>
-            <button class="primary-btn" id="saveGpsSpotBtn">Save My GPS Spot</button>
+            <button class="primary-btn" id="saveGpsSpotBtn">Save Current GPS Spot</button>
+            <div class="result-box" id="gpsStatus">Nog geen GPS aksie nie.</div>
           </div>
 
           <div class="card">
             <h3>Add New Spot</h3>
             <input type="text" id="newSpotName" placeholder="Spot naam" />
-            <input type="number" id="newSpotLat" placeholder="Latitude" step="0.000001" readonly />
-            <input type="number" id="newSpotLon" placeholder="Longitude" step="0.000001" readonly />
+            <input type="text" id="newSpotLat" placeholder="Latitude" readonly />
+            <input type="text" id="newSpotLon" placeholder="Longitude" readonly />
             <textarea id="newSpotNote" placeholder="Nota oor die spot"></textarea>
-            <button class="primary-btn" id="useGpsBtn">Use My GPS</button>
-            <button class="primary-btn" id="addSpotBtn">Add Spot</button>
+            <button class="primary-btn" id="useGpsBtn">Use My GPS Coordinates</button>
+            <button class="primary-btn" id="addSpotBtn">Save Spot</button>
           </div>
         </div>
 
         <div class="grid two">
           <div class="card">
-            <h3>Spot Notes</h3>
+            <h3>Saved Spots</h3>
             <div class="spot-list" id="spotList"></div>
           </div>
 
           <div class="card">
-            <h3>Spot List</h3>
+            <h3>Quick Spot Select</h3>
             <div id="spotIndex" class="index-grid"></div>
           </div>
         </div>
@@ -282,10 +240,9 @@
           <div id="catchList" class="catch-list"></div>
         </div>
       </section>
-
     </main>
   </div>
 
   <script src="app.js"></script>
 </body>
-                                                      </html>
+  </html>
