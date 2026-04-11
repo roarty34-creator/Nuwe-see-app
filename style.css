@@ -300,7 +300,7 @@ input[type="file"] {
 .fish-card {
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .fish-card:hover {
@@ -360,7 +360,7 @@ input[type="file"] {
 }
 
 #mapView {
-  height: 400px;
+  height: 420px;
   border-radius: 14px;
   overflow: hidden;
 }
@@ -408,4 +408,4 @@ input[type="file"] {
   #mapView {
     height: 320px;
   }
-  }
+}
