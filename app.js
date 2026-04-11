@@ -2,23 +2,23 @@ const LAT = -34.37;
 const LON = 21.42;
 
 const fishData = [
-  { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard", rig:"2-hook bottom rig", sinker:"8 oz", image:"fish-cape-cob.png", notes:"Sterk bodem setup vir groter vis." },
-  { name:"geelstert", minSize:60, bagLimit:10, bait:"live bait, sardine, plug", rig:"surface / drift rig", sinker:"4-6 oz", image:"fish-yellowtail.png", notes:"Werk goed met surface presentation." },
-  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", rig:"spin rig", sinker:"Geen sinker / klein spoon", image:"fish-bonito.png", notes:"Vinnige retrieve werk goed." },
-  { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka", rig:"bottom rig", sinker:"8 oz", image:"fish-red-roman.png", notes:"Hou aas naby bodem." },
-  { name:"snapper", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", sinker:"8 oz", image:"fish-snapper.png", notes:"Kort en netjiese presentation." },
-  { name:"silverfish", minSize:25, bagLimit:10, bait:"okka strips, sard", rig:"light bottom rig", sinker:"5-6 oz", image:"fish-carpenter.png", notes:"Ligte tackle werk mooi." },
-  { name:"red steenbras", minSize:60, bagLimit:1, bait:"chokka, sard", rig:"heavy bottom rig", sinker:"8-10 oz", image:"fish-red-steenbras.png", notes:"Sterk tackle nodig." },
-  { name:"yellow belly", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", sinker:"7-8 oz", image:"fish-yellow-belly.png", notes:"Hou die rig eenvoudig." },
-  { name:"hottentot", minSize:22, bagLimit:10, bait:"red bait, prawn, mussel", rig:"small hook bottom rig", sinker:"4-5 oz", image:"fish-hottentot.png", notes:"Kleiner hoeke werk beter." },
-  { name:"geelbek", minSize:60, bagLimit:5, bait:"chokka, sard, live bait", rig:"long leader rig", sinker:"6-8 oz", image:"fish-snapper.png", notes:"Gebruik selfde foto vir nou." },
-  { name:"dageraad", minSize:40, bagLimit:1, bait:"okka, red bait", rig:"bottom rig", sinker:"7-8 oz", image:"fish-dageraad.png", notes:"Hou by sterk bodem setup." },
-  { name:"santer", minSize:23, bagLimit:10, bait:"okka, sard strips", rig:"light bottom rig", sinker:"5-6 oz", image:"fish-carpenter.png", notes:"Selfde tipe vis vir nou." },
-  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", rig:"spinning rig", sinker:"Geen sinker / klein spoon", image:"fish-elf-shad.png", notes:"Werk lekker op retrieve." },
-  { name:"poensie", minSize:40, bagLimit:5, bait:"okka, sard", rig:"bottom rig", sinker:"7-8 oz", image:"fish-red-roman.png", notes:"Gebruik roman foto vir nou." }
+  { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard", image:"fish-cape-cob.png", notes:"Sterk bodem setup vir groter vis." },
+  { name:"geelstert", minSize:60, bagLimit:10, bait:"live bait, sardine, plug", image:"fish-yellowtail.png", notes:"Werk goed met surface presentation." },
+  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", image:"fish-bonito.png", notes:"Vinnige retrieve werk goed." },
+  { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka", image:"fish-red-roman.png", notes:"Hou aas naby bodem." },
+  { name:"snapper", minSize:30, bagLimit:5, bait:"okka, sard", image:"fish-snapper.png", notes:"Kort en netjiese presentation." },
+  { name:"silverfish", minSize:25, bagLimit:10, bait:"okka strips, sard", image:"fish-carpenter.png", notes:"Ligte tackle werk mooi." },
+  { name:"red steenbras", minSize:60, bagLimit:1, bait:"chokka, sard", image:"fish-red-steenbras.png", notes:"Sterk tackle nodig." },
+  { name:"yellow belly", minSize:30, bagLimit:5, bait:"okka, sard", image:"fish-yellow-belly.png", notes:"Hou die rig eenvoudig." },
+  { name:"hottentot", minSize:22, bagLimit:10, bait:"red bait, prawn, mussel", image:"fish-hottentot.png", notes:"Kleiner hoeke werk beter." },
+  { name:"geelbek", minSize:60, bagLimit:5, bait:"chokka, sard, live bait", image:"fish-snapper.png", notes:"Gebruik selfde foto vir nou." },
+  { name:"dageraad", minSize:40, bagLimit:1, bait:"okka, red bait", image:"fish-dageraad.png", notes:"Hou by sterk bodem setup." },
+  { name:"santer", minSize:23, bagLimit:10, bait:"okka, sard strips", image:"fish-carpenter.png", notes:"Selfde tipe vis vir nou." },
+  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", image:"fish-elf-shad.png", notes:"Werk lekker op retrieve." },
+  { name:"poensie", minSize:40, bagLimit:5, bait:"okka, sard", image:"fish-red-roman.png", notes:"Gebruik roman foto vir nou." }
 ];
 
-const spots = [
+const defaultSpots = [
   { name:"Stilbaai Rivier Mond", lat:-34.382, lon:21.419, note:"Goeie reference spot vir mond area." },
   { name:"Blombos Area", lat:-34.410, lon:21.530, note:"Gebruik as offshore reference." },
   { name:"Jongensfontein", lat:-34.420, lon:21.340, note:"Bekende area vir boot planning." }
@@ -34,8 +34,6 @@ const fishSearch = document.getElementById("fishSearch");
 const legalFish = document.getElementById("legalFish");
 const fishLength = document.getElementById("fishLength");
 const legalResult = document.getElementById("legalResult");
-const rigIndex = document.getElementById("rigIndex");
-const rigGrid = document.getElementById("rigGrid");
 const fishDetailCard = document.getElementById("fishDetailCard");
 const detailTabBtn = document.getElementById("detailTabBtn");
 const installBtn = document.getElementById("installBtn");
@@ -89,8 +87,6 @@ function renderFish(list) {
         <p><strong>Min size:</strong> ${fish.minSize} cm</p>
         <p><strong>Bag limit:</strong> ${fish.bagLimit}</p>
         <p><strong>Bait:</strong> ${fish.bait}</p>
-        <p><strong>Rig:</strong> ${fish.rig}</p>
-        <p><strong>Sinker:</strong> ${fish.sinker}</p>
       </div>
     `;
     card.addEventListener("click", () => showFishDetail(fish));
@@ -121,9 +117,7 @@ function filterFish() {
   const filtered = fishData.filter(fish =>
     fish.name.toLowerCase().includes(search) ||
     fish.bait.toLowerCase().includes(search) ||
-    fish.rig.toLowerCase().includes(search) ||
-    fish.notes.toLowerCase().includes(search) ||
-    fish.sinker.toLowerCase().includes(search)
+    fish.notes.toLowerCase().includes(search)
   );
   renderFish(filtered);
 }
@@ -138,8 +132,6 @@ function showFishDetail(fish) {
       <div class="detail-chip"><strong>Minimum Size</strong><br>${fish.minSize} cm</div>
       <div class="detail-chip"><strong>Bag Limit</strong><br>${fish.bagLimit}</div>
       <div class="detail-chip"><strong>Bait</strong><br>${fish.bait}</div>
-      <div class="detail-chip"><strong>Rig</strong><br>${fish.rig}</div>
-      <div class="detail-chip"><strong>Sinker</strong><br>${fish.sinker}</div>
     </div>
 
     <h3>Notes</h3>
@@ -194,91 +186,66 @@ function checkLegal() {
   }
 }
 
-function rigSvg(label) {
-  return `
-    <svg class="rig-svg" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
-      <line x1="160" y1="10" x2="160" y2="150" stroke="white" stroke-width="2"/>
-      <line x1="160" y1="55" x2="90" y2="80" stroke="white" stroke-width="2"/>
-      <line x1="160" y1="95" x2="230" y2="120" stroke="white" stroke-width="2"/>
-      <circle cx="160" cy="30" r="6" fill="none" stroke="#00c8ff" stroke-width="2"/>
-      <path d="M90 80 q-8 14 6 18" fill="none" stroke="#ffcc4d" stroke-width="2"/>
-      <path d="M230 120 q-8 14 6 18" fill="none" stroke="#ffcc4d" stroke-width="2"/>
-      <polygon points="152,150 168,150 160,172" fill="#ffffff"/>
-      <text x="160" y="170" text-anchor="middle" fill="#9db4c9" font-size="12">${label}</text>
-    </svg>
-  `;
+function getSavedSpots() {
+  const saved = JSON.parse(localStorage.getItem("customSpots") || "[]");
+  return [...defaultSpots, ...saved];
 }
 
-function buildRigIndex() {
-  rigIndex.innerHTML = "";
-
-  const allBtn = document.createElement("div");
-  allBtn.className = "index-btn";
-  allBtn.textContent = "all";
-  allBtn.onclick = () => showAllRigs();
-  rigIndex.appendChild(allBtn);
-
-  fishData.forEach(fish => {
-    const btn = document.createElement("div");
-    btn.className = "index-btn";
-    btn.textContent = fish.name;
-    btn.onclick = () => showRig(fish);
-    rigIndex.appendChild(btn);
-  });
-
-  showAllRigs();
-}
-
-function showRig(fish) {
-  rigGrid.innerHTML = `
-    <div class="card">
-      <h3 style="text-transform:capitalize;">${fish.name} rig</h3>
-      ${rigSvg(fish.name)}
-      <p><strong>Rig:</strong> ${fish.rig}</p>
-      <p><strong>Bait:</strong> ${fish.bait}</p>
-      <p><strong>Sinker:</strong> ${fish.sinker}</p>
-      <p><strong>Tip:</strong> Pas sinker en strop lengte aan volgens wind en swell.</p>
-    </div>
-  `;
-}
-
-function showAllRigs() {
-  rigGrid.innerHTML = fishData.map(fish => `
-    <div class="card">
-      <h3 style="text-transform:capitalize;">${fish.name}</h3>
-      ${rigSvg(fish.name)}
-      <p><strong>Rig:</strong> ${fish.rig}</p>
-      <p><strong>Bait:</strong> ${fish.bait}</p>
-      <p><strong>Sinker:</strong> ${fish.sinker}</p>
-    </div>
-  `).join("");
+function saveCustomSpot(spot) {
+  const saved = JSON.parse(localStorage.getItem("customSpots") || "[]");
+  saved.push(spot);
+  localStorage.setItem("customSpots", JSON.stringify(saved));
 }
 
 function renderSpotList() {
   if (!spotList) return;
-  spotList.innerHTML = spots.map(spot => `
+  const allSpots = getSavedSpots();
+  spotList.innerHTML = allSpots.map(spot => `
     <div class="spot-item">
       <strong>${spot.name}</strong><br>
       <span class="muted">${spot.lat.toFixed(3)}, ${spot.lon.toFixed(3)}</span>
-      <p>${spot.note}</p>
+      <p>${spot.note || ""}</p>
     </div>
   `).join("");
 }
 
-function buildSpotIndex() {
+function renderSpotIndex() {
   if (!spotIndex) return;
+
+  const allSpots = getSavedSpots();
   spotIndex.innerHTML = "";
 
-  spots.forEach(s => {
+  allSpots.forEach((spot, index) => {
     const btn = document.createElement("div");
     btn.className = "index-btn";
-    btn.textContent = s.name;
-    btn.onclick = () => {
-      switchTab("map");
-      setTimeout(() => zoomToSpot(s), 350);
-    };
+    btn.textContent = spot.name;
+    btn.onclick = () => zoomToSpot(index);
     spotIndex.appendChild(btn);
   });
+}
+
+function addSpotFromForm() {
+  const name = document.getElementById("newSpotName").value.trim();
+  const lat = Number(document.getElementById("newSpotLat").value);
+  const lon = Number(document.getElementById("newSpotLon").value);
+  const note = document.getElementById("newSpotNote").value.trim();
+
+  if (!name || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+    alert("Sit eers geldige spot naam, latitude en longitude in.");
+    return;
+  }
+
+  saveCustomSpot({ name, lat, lon, note });
+  rebuildMapSpots();
+  renderSpotIndex();
+  renderSpotList();
+
+  document.getElementById("newSpotName").value = "";
+  document.getElementById("newSpotLat").value = "";
+  document.getElementById("newSpotLon").value = "";
+  document.getElementById("newSpotNote").value = "";
+
+  alert("Spot saved.");
 }
 
 function initMap() {
@@ -293,52 +260,52 @@ function initMap() {
     }).addTo(mapInstance);
 
     markersLayer = L.layerGroup().addTo(mapInstance);
-
-    spots.forEach(s => {
-      L.marker([s.lat, s.lon])
-        .addTo(markersLayer)
-        .bindPopup(`<b>${s.name}</b><br>${s.note}`);
-    });
-
-    fitMapToSpots();
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const userLat = pos.coords.latitude;
-        const userLon = pos.coords.longitude;
-
-        L.circleMarker([userLat, userLon], {
-          radius: 8,
-          color: "#00c8ff",
-          fillColor: "#00c8ff",
-          fillOpacity: 0.85
-        }).addTo(markersLayer).bindPopup("📍 Jy is hier");
-      });
-    }
+    rebuildMapSpots();
   }
+}
+
+function rebuildMapSpots() {
+  if (!mapInstance || !markersLayer) return;
+
+  markersLayer.clearLayers();
+
+  const allSpots = getSavedSpots();
+  allSpots.forEach(spot => {
+    L.marker([spot.lat, spot.lon])
+      .addTo(markersLayer)
+      .bindPopup(`<b>${spot.name}</b><br>${spot.note || ""}`);
+  });
+
+  fitMapToSpots();
 }
 
 function fitMapToSpots() {
   if (!mapInstance || !markersLayer) return;
-
   const bounds = markersLayer.getBounds();
   if (bounds.isValid()) {
     mapInstance.fitBounds(bounds, { padding: [30, 30] });
   }
 }
 
-function zoomToSpot(spot) {
+function zoomToSpot(index) {
   if (!mapInstance || !markersLayer) return;
-  mapInstance.setView([spot.lat, spot.lon], 13);
 
-  markersLayer.eachLayer(layer => {
-    if (layer.getLatLng) {
-      const ll = layer.getLatLng();
-      if (Math.abs(ll.lat - spot.lat) < 0.0001 && Math.abs(ll.lng - spot.lon) < 0.0001) {
+  const allSpots = getSavedSpots();
+  const spot = allSpots[index];
+  if (!spot) return;
+
+  switchTab("map");
+  setTimeout(() => {
+    mapInstance.setView([spot.lat, spot.lon], 13);
+
+    let i = 0;
+    markersLayer.eachLayer(layer => {
+      if (i === index && layer.openPopup) {
         layer.openPopup();
       }
-    }
-  });
+      i++;
+    });
+  }, 250);
 }
 
 async function loadWeatherAndMarine() {
@@ -361,9 +328,8 @@ async function loadWeatherAndMarine() {
     const swellPeriod = m.wave_period ?? 0;
     const swellDeg = m.wave_direction ?? 0;
 
-    const waterTemp = m.sea_surface_temperature ?? "-";
-    const dayTemp = d.temperature_2m_max?.[0] ?? "-";
-    const nightTemp = d.temperature_2m_min?.[0] ?? "-";
+    let waterTemp = Number(m.sea_surface_temperature ?? 0);
+    waterTemp = waterTemp > 0 ? waterTemp.toFixed(1) : "-";
 
     document.getElementById("windNow").textContent = `${windSpeed} km/h`;
     document.getElementById("swellNow").textContent = `${swell} m`;
@@ -385,12 +351,6 @@ async function loadWeatherAndMarine() {
     document.getElementById("weatherSwellDirection").textContent = `${degreesToCompass(swellDeg)} (${swellDeg}°)`;
     document.getElementById("weatherCloud").textContent = `${c.cloud_cover ?? "-"}%`;
     document.getElementById("weatherWaterTemp").textContent = `${waterTemp}°C`;
-    document.getElementById("weatherDayTemp").textContent = `${dayTemp}°C`;
-    document.getElementById("weatherNightTemp").textContent = `${nightTemp}°C`;
-
-    document.getElementById("seaSummaryWind").textContent = `${windSpeed} km/h`;
-    document.getElementById("seaSummarySwell").textContent = `${swell} m @ ${swellPeriod}s`;
-    document.getElementById("seaSummaryTemp").textContent = `${waterTemp}°C`;
 
     document.getElementById("windArrow").style.transform = `rotate(${windDeg}deg)`;
     document.getElementById("driftArrow").style.transform = `rotate(${windDeg}deg)`;
@@ -401,14 +361,33 @@ async function loadWeatherAndMarine() {
     badge.textContent = condition.text;
     badge.className = `condition-pill ${condition.cls}`;
 
+    buildWeekTemps(d.time || [], d.temperature_2m_max || [], d.temperature_2m_min || []);
+    loadTidesFromMarine(marine.hourly);
+
     appStatus.className = "result-box";
     appStatus.innerHTML = `Live data gelaai. Water temp: ${waterTemp}°C`;
-
-    loadTidesFromMarine(marine.hourly);
   } catch (err) {
     appStatus.className = "result-box";
     appStatus.textContent = "Live data kon nie laai nie.";
   }
+}
+
+function buildWeekTemps(dates, maxTemps, minTemps) {
+  const weekEl = document.getElementById("weekTempList");
+  if (!weekEl) return;
+
+  if (!dates.length) {
+    weekEl.innerHTML = `<div class="spot-item"><strong>No week temps</strong></div>`;
+    return;
+  }
+
+  weekEl.innerHTML = dates.slice(0, 7).map((date, i) => `
+    <div class="spot-item">
+      <strong>${date}</strong>
+      <p>Day: ${maxTemps[i] ?? "-"}°C</p>
+      <p>Night: ${minTemps[i] ?? "-"}°C</p>
+    </div>
+  `).join("");
 }
 
 function findTideExtremes(hourly) {
@@ -423,12 +402,8 @@ function findTideExtremes(hourly) {
     const curr = levels[i];
     const next = levels[i + 1];
 
-    if (curr > prev && curr > next) {
-      extremes.push({ type: "High", time: times[i], level: curr });
-    }
-    if (curr < prev && curr < next) {
-      extremes.push({ type: "Low", time: times[i], level: curr });
-    }
+    if (curr > prev && curr > next) extremes.push({ type: "High", time: times[i], level: curr });
+    if (curr < prev && curr < next) extremes.push({ type: "Low", time: times[i], level: curr });
   }
 
   return extremes.slice(0, 6);
@@ -443,8 +418,13 @@ function loadTidesFromMarine(hourly) {
   if (!extremes.length) {
     tideList.innerHTML = `
       <div class="spot-item">
-        <strong>No tide turns found</strong>
-        <p>Gebruik tide notes vir nou.</p>
+        <strong>Tides unavailable</strong>
+        <p>Geen tide turns nou gekry nie. Gebruik tide notes hieronder.</p>
+      </div>
+      <div class="spot-item">
+        <strong>Fallback</strong>
+        <p>Morning: check local tide source</p>
+        <p>Afternoon: check local tide source</p>
       </div>
     `;
     return;
@@ -460,9 +440,7 @@ function loadTidesFromMarine(hourly) {
 }
 
 function loadTides() {
-  if (tideNotes) {
-    tideNotes.value = localStorage.getItem("tideNotes") || "";
-  }
+  if (tideNotes) tideNotes.value = localStorage.getItem("tideNotes") || "";
 }
 
 function saveTideNotes() {
@@ -611,7 +589,8 @@ function exportBackup() {
   const backup = {
     tripPlan: JSON.parse(localStorage.getItem("tripPlan") || "null"),
     tideNotes: localStorage.getItem("tideNotes") || "",
-    catchLog: getCatchLog()
+    catchLog: getCatchLog(),
+    customSpots: JSON.parse(localStorage.getItem("customSpots") || "[]")
   };
 
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
@@ -634,9 +613,13 @@ function importBackup(file) {
       localStorage.setItem("tripPlan", JSON.stringify(data.tripPlan || null));
       localStorage.setItem("tideNotes", data.tideNotes || "");
       localStorage.setItem("catchLog", JSON.stringify(data.catchLog || []));
+      localStorage.setItem("customSpots", JSON.stringify(data.customSpots || []));
       showSavedPlan();
       loadTides();
       renderCatchLog();
+      renderSpotList();
+      renderSpotIndex();
+      rebuildMapSpots();
       updateStats();
       alert("Backup imported.");
     } catch (e) {
@@ -675,7 +658,7 @@ document.querySelectorAll(".tab-btn").forEach(button => {
   button.addEventListener("click", () => switchTab(button.dataset.tab));
 });
 
-if (fishSearch) fishSearch.addEventListener("input", filterFish);
+fishSearch?.addEventListener("input", filterFish);
 document.getElementById("checkLegalBtn")?.addEventListener("click", checkLegal);
 document.getElementById("savePlanBtn")?.addEventListener("click", savePlan);
 document.getElementById("saveTideNotesBtn")?.addEventListener("click", saveTideNotes);
@@ -684,16 +667,16 @@ document.getElementById("exportBtn")?.addEventListener("click", exportBackup);
 document.getElementById("importFile")?.addEventListener("change", (e) => {
   if (e.target.files[0]) importBackup(e.target.files[0]);
 });
+document.getElementById("addSpotBtn")?.addEventListener("click", addSpotFromForm);
 
 buildFishIndex();
-buildRigIndex();
-buildSpotIndex();
 renderFish(fishData);
 loadLegalOptions();
 showSavedPlan();
 loadTides();
 renderCatchLog();
 renderSpotList();
+renderSpotIndex();
 updateStats();
 setupInstallPrompt();
 registerServiceWorker();
