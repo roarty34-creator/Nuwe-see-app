@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App</title>
+  <title>Stilbaai Fishing App V6</title>
   <meta name="theme-color" content="#06111b" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -13,16 +13,12 @@
 </head>
 <body>
   <div class="app-shell">
-
     <header class="topbar">
       <div>
         <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">Dark Ocean Final</p>
+        <p class="subtitle">V6</p>
       </div>
-      <div class="top-actions">
-        <button class="install-btn hidden" id="installBtn">Install</button>
-        <div class="badge">PRO</div>
-      </div>
+      <div class="badge">V6</div>
     </header>
 
     <section class="hero-card">
@@ -76,7 +72,7 @@
           </div>
 
           <div class="card">
-            <h3>Wind / Drift Visual</h3>
+            <h3>Wind / Drift</h3>
             <div class="visual-wrap">
               <div class="arrow-row">
                 <div>
@@ -217,14 +213,16 @@
           <div class="card">
             <h3>Map</h3>
             <div id="mapView"></div>
+            <button class="primary-btn" id="saveGpsSpotBtn">Save My GPS Spot</button>
           </div>
 
           <div class="card">
             <h3>Add New Spot</h3>
             <input type="text" id="newSpotName" placeholder="Spot naam" />
-            <input type="number" id="newSpotLat" placeholder="Latitude bv -34.382" step="0.000001" />
-            <input type="number" id="newSpotLon" placeholder="Longitude bv 21.419" step="0.000001" />
+            <input type="number" id="newSpotLat" placeholder="Latitude" step="0.000001" readonly />
+            <input type="number" id="newSpotLon" placeholder="Longitude" step="0.000001" readonly />
             <textarea id="newSpotNote" placeholder="Nota oor die spot"></textarea>
+            <button class="primary-btn" id="useGpsBtn">Use My GPS</button>
             <button class="primary-btn" id="addSpotBtn">Add Spot</button>
           </div>
         </div>
@@ -290,4 +288,4 @@
 
   <script src="app.js"></script>
 </body>
-  </html>
+                                                      </html>
