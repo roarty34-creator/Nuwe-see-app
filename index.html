@@ -12,304 +12,212 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">Dark Ocean Final</p>
+
+<div class="app-shell">
+
+  <header class="topbar">
+    <div>
+      <h1>🎣 Stilbaai Fishing App</h1>
+      <p class="subtitle">Dark Ocean V5</p>
+    </div>
+    <div class="badge">PRO</div>
+  </header>
+
+  <!-- TOP STATS -->
+  <section class="hero-card">
+    <h2>Vinnige Oorsig</h2>
+    <div class="hero-grid">
+      <div class="stat-card">
+        <span class="label">Wind</span>
+        <span class="value" id="windNow">-</span>
       </div>
-
-      <div class="top-actions">
-        <button class="install-btn hidden" id="installBtn">Install</button>
-        <div class="badge">PRO</div>
+      <div class="stat-card">
+        <span class="label">Swell</span>
+        <span class="value" id="swellNow">-</span>
       </div>
-    </header>
-
-    <section class="hero-card">
-      <h2>Vinnige Oorsig</h2>
-      <div class="hero-grid">
-        <div class="stat-card">
-          <span class="label">Wind</span>
-          <span class="value" id="windNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Swell</span>
-          <span class="value" id="swellNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Water Temp</span>
-          <span class="value" id="tempNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Conditions</span>
-          <span class="value" id="conditionNow">-</span>
-        </div>
+      <div class="stat-card">
+        <span class="label">Water Temp</span>
+        <span class="value" id="tempNow">-</span>
       </div>
-    </section>
+      <div class="stat-card">
+        <span class="label">Conditions</span>
+        <span class="value" id="conditionNow">-</span>
+      </div>
+    </div>
+  </section>
 
-    <nav class="tabbar">
-      <button class="tab-btn active" data-tab="home">Home</button>
-      <button class="tab-btn" data-tab="weather">Weather</button>
-      <button class="tab-btn" data-tab="tides">Tides</button>
-      <button class="tab-btn" data-tab="fish">Fish</button>
-      <button class="tab-btn" data-tab="legal">Legal</button>
-      <button class="tab-btn" data-tab="rigs">Rigs</button>
-      <button class="tab-btn" data-tab="map">Map</button>
-      <button class="tab-btn" data-tab="planner">Planner</button>
-      <button class="tab-btn" data-tab="log">Catch Log</button>
-      <button class="tab-btn hidden" data-tab="fishDetail" id="detailTabBtn">Detail</button>
-    </nav>
+  <!-- NAV -->
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="home">Home</button>
+    <button class="tab-btn" data-tab="weather">Weather</button>
+    <button class="tab-btn" data-tab="tides">Tides</button>
+    <button class="tab-btn" data-tab="fish">Fish</button>
+    <button class="tab-btn" data-tab="legal">Legal</button>
+    <button class="tab-btn" data-tab="map">Map</button>
+    <button class="tab-btn" data-tab="planner">Planner</button>
+    <button class="tab-btn" data-tab="log">Catch Log</button>
+    <button class="tab-btn hidden" data-tab="fishDetail" id="detailTabBtn">Detail</button>
+  </nav>
 
-    <main class="content">
+  <main class="content">
 
-      <section class="tab-content active" id="home">
-        <div class="grid two">
-          <div class="card">
-            <h3>Vandag se Toestande</h3>
-            <ul class="info-list">
-              <li><strong>Wind:</strong> <span id="homeWind">-</span></li>
-              <li><strong>Swell:</strong> <span id="homeSwell">-</span></li>
-              <li><strong>Periode:</strong> <span id="homePeriod">-</span></li>
-              <li><strong>Water Temp:</strong> <span id="homeTemp">-</span></li>
-              <li><strong>Cloud:</strong> <span id="homeCloud">-</span></li>
-              <li><strong>Status:</strong> <span id="conditionBadge" class="condition-pill neutral">Loading</span></li>
-            </ul>
-          </div>
+    <!-- HOME -->
+    <section class="tab-content active" id="home">
 
-          <div class="card">
-            <h3>Wind / Drift Visual</h3>
-            <div class="visual-wrap">
-              <div class="arrow-row">
-                <div>
-                  <div class="small-label">Wind</div>
-                  <div class="big-arrow" id="windArrow">⬆</div>
-                </div>
-                <div>
-                  <div class="small-label">Drift</div>
-                  <div class="big-arrow" id="driftArrow">⬆</div>
-                </div>
-              </div>
-              <p id="windDirText">-</p>
-              <p id="driftText">-</p>
-            </div>
-          </div>
+      <div class="grid two">
+
+        <div class="card">
+          <h3>Toestande</h3>
+          <ul class="info-list">
+            <li><strong>Wind:</strong> <span id="homeWind">-</span></li>
+            <li><strong>Swell:</strong> <span id="homeSwell">-</span></li>
+            <li><strong>Periode:</strong> <span id="homePeriod">-</span></li>
+            <li><strong>Water Temp:</strong> <span id="homeTemp">-</span></li>
+            <li><strong>Cloud:</strong> <span id="homeCloud">-</span></li>
+            <li><strong>Status:</strong> <span id="conditionBadge">-</span></li>
+          </ul>
         </div>
 
         <div class="card">
           <h3>Quick Actions</h3>
           <div class="index-grid">
             <div class="index-btn" onclick="switchTab('fish')">Fish</div>
-            <div class="index-btn" onclick="switchTab('rigs')">Rigs</div>
             <div class="index-btn" onclick="switchTab('map')">Map</div>
-            <div class="index-btn" onclick="switchTab('log')">Log Catch</div>
+            <div class="index-btn" onclick="switchTab('planner')">Planner</div>
+            <div class="index-btn" onclick="switchTab('log')">Log</div>
           </div>
         </div>
 
-        <div class="grid two">
-          <div class="card">
-            <h3>Quick Stats</h3>
-            <div class="stats-grid">
-              <div class="mini-stat">
-                <span class="mini-label">Total Catches</span>
-                <strong id="totalCatches">0</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Top Species</span>
-                <strong id="topSpecies">-</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Saved Plans</span>
-                <strong id="savedPlansCount">0</strong>
-              </div>
-              <div class="mini-stat">
-                <span class="mini-label">Tide Notes</span>
-                <strong id="tideNotesState">None</strong>
-              </div>
-            </div>
-          </div>
+      </div>
 
-          <div class="card">
-            <h3>App Status</h3>
-            <div class="result-box" id="appStatus">App gereed.</div>
-          </div>
-        </div>
-      </section>
+    </section>
 
-      <section class="tab-content" id="weather">
-        <div class="grid two">
-          <div class="card">
-            <h3>Sea / Weather</h3>
-            <ul class="info-list">
-              <li><strong>Wind Speed:</strong> <span id="weatherWindSpeed">-</span></li>
-              <li><strong>Wind Direction:</strong> <span id="weatherWindDirection">-</span></li>
-              <li><strong>Swell Height:</strong> <span id="weatherSwellHeight">-</span></li>
-              <li><strong>Swell Period:</strong> <span id="weatherSwellPeriod">-</span></li>
-              <li><strong>Swell Direction:</strong> <span id="weatherSwellDirection">-</span></li>
-              <li><strong>Cloud Cover:</strong> <span id="weatherCloud">-</span></li>
-              <li><strong>Water Temp:</strong> <span id="weatherWaterTemp">-</span></li>
-              <li><strong>Day Temp:</strong> <span id="weatherDayTemp">-</span></li>
-              <li><strong>Night Temp:</strong> <span id="weatherNightTemp">-</span></li>
-            </ul>
-          </div>
+    <!-- WEATHER -->
+    <section class="tab-content" id="weather">
 
-          <div class="card">
-            <h3>Sea Summary</h3>
-            <div class="sea-summary">
-              <p><strong>Wind:</strong> <span id="seaSummaryWind">-</span></p>
-              <p><strong>Swell:</strong> <span id="seaSummarySwell">-</span></p>
-              <p><strong>Water Temp:</strong> <span id="seaSummaryTemp">-</span></p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="grid two">
 
-      <section class="tab-content" id="tides">
-        <div class="grid two">
-          <div class="card">
-            <h3>Tide Overview</h3>
-            <div id="tideList" class="spot-list"></div>
-          </div>
-
-          <div class="card">
-            <h3>Tide Notes</h3>
-            <textarea id="tideNotes" placeholder="Skryf jou eie tide tye of notas hier..."></textarea>
-            <button class="primary-btn" id="saveTideNotesBtn">Save Tide Notes</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="fish">
         <div class="card">
-          <h3>Fish Index</h3>
-          <div class="index-grid" id="fishIndex"></div>
+          <h3>Sea / Weather</h3>
+          <ul class="info-list">
+            <li><strong>Wind:</strong> <span id="weatherWindSpeed">-</span></li>
+            <li><strong>Direction:</strong> <span id="weatherWindDirection">-</span></li>
+            <li><strong>Swell:</strong> <span id="weatherSwellHeight">-</span></li>
+            <li><strong>Period:</strong> <span id="weatherSwellPeriod">-</span></li>
+            <li><strong>Water Temp:</strong> <span id="weatherWaterTemp">-</span></li>
+          </ul>
         </div>
 
         <div class="card">
-          <input type="text" id="fishSearch" class="search-input" placeholder="Soek vis, bait, rig of sinker..." />
+          <h3>Week Temps</h3>
+          <div id="weekTempList" class="spot-list"></div>
         </div>
 
-        <div class="fish-grid" id="fishGrid"></div>
-      </section>
+      </div>
 
-      <section class="tab-content" id="fishDetail">
-        <div class="card" id="fishDetailCard">
-          <h3>Fish Detail</h3>
-          <p>Kies ’n vis.</p>
-        </div>
-      </section>
+    </section>
 
-      <section class="tab-content" id="legal">
-        <div class="grid two">
-          <div class="card">
-            <h3>Legal Checker</h3>
-            <label for="legalFish">Kies vis</label>
-            <select id="legalFish"></select>
+    <!-- TIDES -->
+    <section class="tab-content" id="tides">
+      <div class="grid two">
 
-            <label for="fishLength">Lengte (cm)</label>
-            <input type="number" id="fishLength" placeholder="Tik lengte in cm" />
-
-            <button class="primary-btn" id="checkLegalBtn">Check</button>
-            <div class="result-box" id="legalResult">Resultaat wys hier...</div>
-          </div>
-
-          <div class="card">
-            <h3>Reference</h3>
-            <p class="muted">Checker gebruik die minimum groottes in jou app se fish database.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="rigs">
         <div class="card">
-          <h3>Rig Index</h3>
-          <div class="index-grid" id="rigIndex"></div>
-        </div>
-
-        <div class="rig-grid" id="rigGrid"></div>
-      </section>
-
-      <section class="tab-content" id="map">
-        <div class="grid two">
-          <div class="card">
-            <h3>Stilbaai Fishing Map</h3>
-            <div id="mapView"></div>
-          </div>
-
-          <div class="card">
-            <h3>Spot Notes</h3>
-            <div class="spot-list" id="spotList"></div>
-          </div>
+          <h3>Tides</h3>
+          <div id="tideList" class="spot-list"></div>
         </div>
 
         <div class="card">
-          <h3>Quick Spot Select</h3>
-          <div id="spotIndex" class="index-grid"></div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="planner">
-        <div class="grid two">
-          <div class="card">
-            <h3>Trip Planner</h3>
-            <label>Datum</label>
-            <input type="date" id="tripDate" />
-
-            <label>Tyd</label>
-            <input type="time" id="tripTime" />
-
-            <label>Notas</label>
-            <textarea id="tripNotes" placeholder="Skryf jou plan..."></textarea>
-
-            <button class="primary-btn" id="savePlanBtn">Save Plan</button>
-          </div>
-
-          <div class="card">
-            <h3>Saved Plan</h3>
-            <div class="result-box" id="savedPlan">Nog niks gestoor nie.</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="log">
-        <div class="grid two">
-          <div class="card">
-            <h3>Nuwe Catch</h3>
-
-            <label>Datum</label>
-            <input type="date" id="logDate" />
-
-            <label>Spesie</label>
-            <select id="logFish"></select>
-
-            <label>Lengte (cm)</label>
-            <input type="number" id="logLength" placeholder="Byv 68" />
-
-            <label>Plek</label>
-            <input type="text" id="logSpot" placeholder="Byv Stilbaai mond" />
-
-            <label>Notas</label>
-            <textarea id="logNotes" placeholder="Aas, rig, toestande..."></textarea>
-
-            <button class="primary-btn" id="saveCatchBtn">Save Catch</button>
-          </div>
-
-          <div class="card">
-            <h3>Backup</h3>
-            <button class="primary-btn" id="exportBtn">Export Backup</button>
-            <label class="file-label" for="importFile">Import Backup</label>
-            <input type="file" id="importFile" accept=".json" />
-            <p class="muted">Export en import planner, tide notes en catch log.</p>
-          </div>
+          <h3>Notes</h3>
+          <textarea id="tideNotes"></textarea>
+          <button class="primary-btn" id="saveTideNotesBtn">Save</button>
         </div>
 
-        <div class="card">
-          <h3>Catch History</h3>
-          <div id="catchList" class="catch-list"></div>
-        </div>
-      </section>
-    </main>
-  </div>
+      </div>
+    </section>
 
-  <script src="app.js"></script>
+    <!-- FISH -->
+    <section class="tab-content" id="fish">
+
+      <div class="card">
+        <h3>Fish Index</h3>
+        <div class="index-grid" id="fishIndex"></div>
+      </div>
+
+      <div class="card">
+        <input type="text" id="fishSearch" placeholder="Soek vis..." />
+      </div>
+
+      <div class="fish-grid" id="fishGrid"></div>
+
+    </section>
+
+    <!-- DETAIL -->
+    <section class="tab-content" id="fishDetail">
+      <div class="card" id="fishDetailCard"></div>
+    </section>
+
+    <!-- LEGAL -->
+    <section class="tab-content" id="legal">
+      <div class="card">
+        <h3>Legal Checker</h3>
+        <select id="legalFish"></select>
+        <input type="number" id="fishLength" placeholder="Lengte cm"/>
+        <button id="checkLegalBtn">Check</button>
+        <div id="legalResult"></div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="tab-content" id="map">
+      <div class="card">
+        <h3>Map</h3>
+        <div id="mapView"></div>
+      </div>
+
+      <div class="card">
+        <h3>Spots</h3>
+        <div id="spotIndex" class="index-grid"></div>
+      </div>
+    </section>
+
+    <!-- PLANNER -->
+    <section class="tab-content" id="planner">
+      <div class="card">
+        <h3>Plan</h3>
+        <input type="date" id="tripDate"/>
+        <input type="time" id="tripTime"/>
+        <textarea id="tripNotes"></textarea>
+        <button id="savePlanBtn">Save</button>
+      </div>
+
+      <div class="card">
+        <h3>Saved</h3>
+        <div id="savedPlan"></div>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="tab-content" id="log">
+      <div class="card">
+        <h3>Log Catch</h3>
+        <input type="date" id="logDate"/>
+        <select id="logFish"></select>
+        <input type="number" id="logLength"/>
+        <input type="text" id="logSpot"/>
+        <textarea id="logNotes"></textarea>
+        <button id="saveCatchBtn">Save</button>
+      </div>
+
+      <div class="card">
+        <h3>History</h3>
+        <div id="catchList"></div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="app.js"></script>
 </body>
-</html>
+  </html>
