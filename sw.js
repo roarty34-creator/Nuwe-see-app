@@ -1,4 +1,4 @@
-const CACHE_NAME = "stilbaai-fishing-final";
+const CACHE_NAME = "stilbaai-fishing-v6";
 const ASSETS = [
   "./",
   "./index.html",
