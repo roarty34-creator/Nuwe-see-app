@@ -26,6 +26,7 @@ const defaultSpots = [
 
 let mapInstance = null;
 let markersLayer = null;
+let gpsMarker = null;
 
 const fishGrid = document.getElementById("fishGrid");
 const fishIndex = document.getElementById("fishIndex");
@@ -41,6 +42,11 @@ const logFish = document.getElementById("logFish");
 const catchList = document.getElementById("catchList");
 const spotList = document.getElementById("spotList");
 const spotIndex = document.getElementById("spotIndex");
+const gpsStatus = document.getElementById("gpsStatus");
+
+function setGpsStatus(text) {
+  if (gpsStatus) gpsStatus.textContent = text;
+}
 
 function switchTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -125,16 +131,13 @@ function showFishDetail(fish) {
   fishDetailCard.innerHTML = `
     <img class="detail-photo" src="${fish.image}" alt="${fish.name}" onerror="this.src='https://via.placeholder.com/800x400?text=${encodeURIComponent(fish.name)}'">
     <h2 style="text-transform:capitalize;">${fish.name}</h2>
-
     <div class="detail-grid">
       <div class="detail-chip"><strong>Minimum Size</strong><br>${fish.minSize} cm</div>
       <div class="detail-chip"><strong>Bag Limit</strong><br>${fish.bagLimit}</div>
       <div class="detail-chip"><strong>Bait</strong><br>${fish.bait}</div>
     </div>
-
     <h3>Notes</h3>
     <p>${fish.notes}</p>
-
     <button class="primary-btn" onclick="switchTab('fish')">← Back</button>
   `;
   switchTab("fishDetail");
@@ -196,20 +199,17 @@ function saveCustomSpot(spot) {
 }
 
 function renderSpotList() {
-  if (!spotList) return;
   const allSpots = getSavedSpots();
   spotList.innerHTML = allSpots.map(spot => `
     <div class="spot-item">
       <strong>${spot.name}</strong><br>
-      <span class="muted">${Number(spot.lat).toFixed(3)}, ${Number(spot.lon).toFixed(3)}</span>
+      <span class="muted">${Number(spot.lat).toFixed(6)}, ${Number(spot.lon).toFixed(6)}</span>
       <p>${spot.note || ""}</p>
     </div>
   `).join("");
 }
 
 function renderSpotIndex() {
-  if (!spotIndex) return;
-
   const allSpots = getSavedSpots();
   spotIndex.innerHTML = "";
 
@@ -222,33 +222,53 @@ function renderSpotIndex() {
   });
 }
 
+function fillSpotForm(lat, lon) {
+  document.getElementById("newSpotLat").value = String(lat);
+  document.getElementById("newSpotLon").value = String(lon);
+}
+
 function useMyGpsForForm() {
   if (!navigator.geolocation) {
+    setGpsStatus("GPS is nie beskikbaar op hierdie toestel nie.");
     alert("GPS is nie beskikbaar op hierdie toestel nie.");
     return;
   }
 
+  setGpsStatus("Besig om GPS te kry...");
+
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      document.getElementById("newSpotLat").value = pos.coords.latitude.toFixed(6);
-      document.getElementById("newSpotLon").value = pos.coords.longitude.toFixed(6);
-      alert("GPS coordinates loaded.");
+      const lat = pos.coords.latitude.toFixed(6);
+      const lon = pos.coords.longitude.toFixed(6);
+      fillSpotForm(lat, lon);
+      placeGpsMarker(Number(lat), Number(lon));
+      setGpsStatus(`GPS loaded: ${lat}, ${lon}`);
     },
-    () => {
-      alert("Kon nie GPS kry nie. Maak seker Location is toegelaat.");
+    (err) => {
+      setGpsStatus("Kon nie GPS kry nie.");
+      alert("Kon nie GPS kry nie. Maak seker Location is toegelaat in Chrome.");
+      console.log(err);
     },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 }
 
 function addSpotFromForm() {
-  const name = document.getElementById("newSpotName")?.value.trim();
-  const lat = Number(document.getElementById("newSpotLat")?.value);
-  const lon = Number(document.getElementById("newSpotLon")?.value);
-  const note = document.getElementById("newSpotNote")?.value.trim();
+  const name = document.getElementById("newSpotName").value.trim();
+  const latStr = document.getElementById("newSpotLat").value.trim();
+  const lonStr = document.getElementById("newSpotLon").value.trim();
+  const note = document.getElementById("newSpotNote").value.trim();
 
-  if (!name || !Number.isFinite(lat) || !Number.isFinite(lon)) {
-    alert("Druk eers 'Use My GPS' of kry geldige coordinates.");
+  const lat = Number(latStr);
+  const lon = Number(lonStr);
+
+  if (!name) {
+    alert("Tik eers 'n spot naam.");
+    return;
+  }
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    alert("Druk eers 'Use My GPS Coordinates'.");
     return;
   }
 
@@ -262,11 +282,13 @@ function addSpotFromForm() {
   document.getElementById("newSpotLon").value = "";
   document.getElementById("newSpotNote").value = "";
 
+  setGpsStatus(`Spot saved: ${name}`);
   alert("Spot saved.");
 }
 
 function saveGpsSpot() {
   if (!navigator.geolocation) {
+    setGpsStatus("GPS is nie beskikbaar op hierdie toestel nie.");
     alert("GPS is nie beskikbaar op hierdie toestel nie.");
     return;
   }
@@ -274,6 +296,8 @@ function saveGpsSpot() {
   const name = prompt("Naam vir GPS spot?");
   if (!name) return;
   const note = prompt("Nota vir spot?") || "";
+
+  setGpsStatus("Besig om current GPS spot te save...");
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
@@ -284,13 +308,18 @@ function saveGpsSpot() {
       renderSpotIndex();
       renderSpotList();
       rebuildMapSpots();
+      placeGpsMarker(lat, lon);
       switchTab("map");
+
+      setGpsStatus(`GPS spot saved: ${name}`);
       alert("GPS spot saved.");
     },
-    () => {
+    (err) => {
+      setGpsStatus("Kon nie current GPS spot save nie.");
       alert("Kon nie jou GPS kry nie. Maak seker Location is toegelaat.");
+      console.log(err);
     },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 }
 
@@ -325,6 +354,24 @@ function rebuildMapSpots() {
   fitMapToSpots();
 }
 
+function placeGpsMarker(lat, lon) {
+  if (!mapInstance) initMap();
+  if (!mapInstance) return;
+
+  if (gpsMarker) {
+    mapInstance.removeLayer(gpsMarker);
+  }
+
+  gpsMarker = L.circleMarker([lat, lon], {
+    radius: 8,
+    color: "#00c8ff",
+    fillColor: "#00c8ff",
+    fillOpacity: 0.9
+  }).addTo(mapInstance).bindPopup("📍 Current GPS");
+
+  mapInstance.setView([lat, lon], 13);
+}
+
 function fitMapToSpots() {
   if (!mapInstance || !markersLayer) return;
   const bounds = markersLayer.getBounds();
@@ -347,7 +394,6 @@ function zoomToSpot(index) {
   switchTab("map");
   setTimeout(() => {
     mapInstance.setView([spot.lat, spot.lon], 13);
-
     let i = 0;
     markersLayer.eachLayer(layer => {
       if (i === index && layer.openPopup) layer.openPopup();
@@ -359,7 +405,6 @@ function zoomToSpot(index) {
 async function loadWeatherAndMarine() {
   try {
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=wind_speed_10m,wind_direction_10m,temperature_2m,cloud_cover&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
-
     const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature,sea_level_height_msl&hourly=sea_level_height_msl&timezone=auto`;
 
     const [weatherRes, marineRes] = await Promise.all([fetch(weatherUrl), fetch(marineUrl)]);
@@ -413,10 +458,11 @@ async function loadWeatherAndMarine() {
     loadTidesFromMarine(marine.hourly);
 
     appStatus.className = "result-box";
-    appStatus.innerHTML = `Live data gelaai. Water temp: ${waterTemp}°C`;
+    appStatus.textContent = `Live data gelaai. Water temp: ${waterTemp}°C`;
   } catch (err) {
     appStatus.className = "result-box";
     appStatus.textContent = "Live data kon nie laai nie.";
+    console.log(err);
   }
 }
 
@@ -511,9 +557,8 @@ function savePlan() {
 
 function showSavedPlan() {
   const savedPlan = document.getElementById("savedPlan");
-  if (!savedPlan) return;
+  const plan = JSON.parse(localStorage.getItem("tripPlan") || "null");
 
-  const plan = JSON.parse(localStorage.getItem("tripPlan"));
   if (!plan || (!plan.date && !plan.time && !plan.notes)) {
     savedPlan.textContent = "Nog niks gestoor nie.";
     return;
@@ -565,9 +610,8 @@ function deleteCatch(id) {
 }
 
 function renderCatchLog() {
-  if (!catchList) return;
-
   const list = getCatchLog();
+
   if (!list.length) {
     catchList.innerHTML = `<div class="result-box">Nog geen catches nie.</div>`;
     return;
@@ -607,12 +651,7 @@ function renderCatchLog() {
 
 function updateStats() {
   const catches = getCatchLog();
-  const totalEl = document.getElementById("totalCatches");
-  const topEl = document.getElementById("topSpecies");
-  const plansEl = document.getElementById("savedPlansCount");
-  const tideEl = document.getElementById("tideNotesState");
-
-  if (totalEl) totalEl.textContent = catches.length;
+  document.getElementById("totalCatches").textContent = catches.length;
 
   const counts = {};
   catches.forEach(item => {
@@ -628,9 +667,9 @@ function updateStats() {
     }
   });
 
-  if (topEl) topEl.textContent = top;
-  if (plansEl) plansEl.textContent = localStorage.getItem("tripPlan") ? "1" : "0";
-  if (tideEl) tideEl.textContent = localStorage.getItem("tideNotes") ? "Saved" : "None";
+  document.getElementById("topSpecies").textContent = top;
+  document.getElementById("savedPlansCount").textContent = localStorage.getItem("tripPlan") ? "1" : "0";
+  document.getElementById("tideNotesState").textContent = localStorage.getItem("tideNotes") ? "Saved" : "None";
 }
 
 function exportBackup() {
