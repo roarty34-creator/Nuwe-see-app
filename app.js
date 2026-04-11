@@ -26,7 +26,6 @@ const defaultSpots = [
 
 let mapInstance = null;
 let markersLayer = null;
-let deferredPrompt = null;
 
 const fishGrid = document.getElementById("fishGrid");
 const fishIndex = document.getElementById("fishIndex");
@@ -36,7 +35,6 @@ const fishLength = document.getElementById("fishLength");
 const legalResult = document.getElementById("legalResult");
 const fishDetailCard = document.getElementById("fishDetailCard");
 const detailTabBtn = document.getElementById("detailTabBtn");
-const installBtn = document.getElementById("installBtn");
 const appStatus = document.getElementById("appStatus");
 const tideNotes = document.getElementById("tideNotes");
 const logFish = document.getElementById("logFish");
@@ -60,7 +58,7 @@ function switchTab(tabId) {
         mapInstance.invalidateSize();
         fitMapToSpots();
       }
-    }, 250);
+    }, 300);
   }
 }
 
@@ -203,7 +201,7 @@ function renderSpotList() {
   spotList.innerHTML = allSpots.map(spot => `
     <div class="spot-item">
       <strong>${spot.name}</strong><br>
-      <span class="muted">${spot.lat.toFixed(3)}, ${spot.lon.toFixed(3)}</span>
+      <span class="muted">${Number(spot.lat).toFixed(3)}, ${Number(spot.lon).toFixed(3)}</span>
       <p>${spot.note || ""}</p>
     </div>
   `).join("");
@@ -224,21 +222,40 @@ function renderSpotIndex() {
   });
 }
 
+function useMyGpsForForm() {
+  if (!navigator.geolocation) {
+    alert("GPS is nie beskikbaar op hierdie toestel nie.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      document.getElementById("newSpotLat").value = pos.coords.latitude.toFixed(6);
+      document.getElementById("newSpotLon").value = pos.coords.longitude.toFixed(6);
+      alert("GPS coordinates loaded.");
+    },
+    () => {
+      alert("Kon nie GPS kry nie. Maak seker Location is toegelaat.");
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
 function addSpotFromForm() {
-  const name = document.getElementById("newSpotName").value.trim();
-  const lat = Number(document.getElementById("newSpotLat").value);
-  const lon = Number(document.getElementById("newSpotLon").value);
-  const note = document.getElementById("newSpotNote").value.trim();
+  const name = document.getElementById("newSpotName")?.value.trim();
+  const lat = Number(document.getElementById("newSpotLat")?.value);
+  const lon = Number(document.getElementById("newSpotLon")?.value);
+  const note = document.getElementById("newSpotNote")?.value.trim();
 
   if (!name || !Number.isFinite(lat) || !Number.isFinite(lon)) {
-    alert("Sit eers geldige spot naam, latitude en longitude in.");
+    alert("Druk eers 'Use My GPS' of kry geldige coordinates.");
     return;
   }
 
   saveCustomSpot({ name, lat, lon, note });
-  rebuildMapSpots();
   renderSpotIndex();
   renderSpotList();
+  rebuildMapSpots();
 
   document.getElementById("newSpotName").value = "";
   document.getElementById("newSpotLat").value = "";
@@ -246,6 +263,35 @@ function addSpotFromForm() {
   document.getElementById("newSpotNote").value = "";
 
   alert("Spot saved.");
+}
+
+function saveGpsSpot() {
+  if (!navigator.geolocation) {
+    alert("GPS is nie beskikbaar op hierdie toestel nie.");
+    return;
+  }
+
+  const name = prompt("Naam vir GPS spot?");
+  if (!name) return;
+  const note = prompt("Nota vir spot?") || "";
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = Number(pos.coords.latitude.toFixed(6));
+      const lon = Number(pos.coords.longitude.toFixed(6));
+
+      saveCustomSpot({ name, lat, lon, note });
+      renderSpotIndex();
+      renderSpotList();
+      rebuildMapSpots();
+      switchTab("map");
+      alert("GPS spot saved.");
+    },
+    () => {
+      alert("Kon nie jou GPS kry nie. Maak seker Location is toegelaat.");
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
 }
 
 function initMap() {
@@ -288,7 +334,11 @@ function fitMapToSpots() {
 }
 
 function zoomToSpot(index) {
-  if (!mapInstance || !markersLayer) return;
+  if (!mapInstance || !markersLayer) {
+    switchTab("map");
+    setTimeout(() => zoomToSpot(index), 500);
+    return;
+  }
 
   const allSpots = getSavedSpots();
   const spot = allSpots[index];
@@ -300,12 +350,10 @@ function zoomToSpot(index) {
 
     let i = 0;
     markersLayer.eachLayer(layer => {
-      if (i === index && layer.openPopup) {
-        layer.openPopup();
-      }
+      if (i === index && layer.openPopup) layer.openPopup();
       i++;
     });
-  }, 250);
+  }, 300);
 }
 
 async function loadWeatherAndMarine() {
@@ -630,35 +678,10 @@ function importBackup(file) {
   reader.readAsText(file);
 }
 
-function setupInstallPrompt() {
-  if (!installBtn) return;
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.classList.remove("hidden");
-  });
-
-  installBtn.addEventListener("click", async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.classList.add("hidden");
-  });
-}
-
-function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
-}
-
+fishSearch?.addEventListener("input", filterFish);
 document.querySelectorAll(".tab-btn").forEach(button => {
   button.addEventListener("click", () => switchTab(button.dataset.tab));
 });
-
-fishSearch?.addEventListener("input", filterFish);
 document.getElementById("checkLegalBtn")?.addEventListener("click", checkLegal);
 document.getElementById("savePlanBtn")?.addEventListener("click", savePlan);
 document.getElementById("saveTideNotesBtn")?.addEventListener("click", saveTideNotes);
@@ -668,6 +691,8 @@ document.getElementById("importFile")?.addEventListener("change", (e) => {
   if (e.target.files[0]) importBackup(e.target.files[0]);
 });
 document.getElementById("addSpotBtn")?.addEventListener("click", addSpotFromForm);
+document.getElementById("useGpsBtn")?.addEventListener("click", useMyGpsForForm);
+document.getElementById("saveGpsSpotBtn")?.addEventListener("click", saveGpsSpot);
 
 buildFishIndex();
 renderFish(fishData);
@@ -678,8 +703,6 @@ renderCatchLog();
 renderSpotList();
 renderSpotIndex();
 updateStats();
-setupInstallPrompt();
-registerServiceWorker();
 loadWeatherAndMarine();
 
 window.switchTab = switchTab;
