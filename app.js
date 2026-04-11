@@ -4,7 +4,7 @@ const LON = 21.42;
 const fishData = [
   { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard", rig:"2-hook bottom rig", sinker:"8 oz", image:"fish-cape-cob.png", notes:"Sterk bodem setup vir groter vis." },
   { name:"geelstert", minSize:60, bagLimit:10, bait:"live bait, sardine, plug", rig:"surface / drift rig", sinker:"4-6 oz", image:"fish-yellowtail.png", notes:"Werk goed met surface presentation." },
-  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", rig:"spin rig", sinker:"No sinker / klein spoon", image:"fish-bonito.png", notes:"Vinnige retrieve werk goed." },
+  { name:"bonito", minSize:0, bagLimit:10, bait:"small lure, spoon, feather", rig:"spin rig", sinker:"Geen sinker / klein spoon", image:"fish-bonito.png", notes:"Vinnige retrieve werk goed." },
   { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka", rig:"bottom rig", sinker:"8 oz", image:"fish-red-roman.png", notes:"Hou aas naby bodem." },
   { name:"snapper", minSize:30, bagLimit:5, bait:"okka, sard", rig:"bottom rig", sinker:"8 oz", image:"fish-snapper.png", notes:"Kort en netjiese presentation." },
   { name:"silverfish", minSize:25, bagLimit:10, bait:"okka strips, sard", rig:"light bottom rig", sinker:"5-6 oz", image:"fish-carpenter.png", notes:"Ligte tackle werk mooi." },
@@ -14,17 +14,18 @@ const fishData = [
   { name:"geelbek", minSize:60, bagLimit:5, bait:"chokka, sard, live bait", rig:"long leader rig", sinker:"6-8 oz", image:"fish-snapper.png", notes:"Gebruik selfde foto vir nou." },
   { name:"dageraad", minSize:40, bagLimit:1, bait:"okka, red bait", rig:"bottom rig", sinker:"7-8 oz", image:"fish-dageraad.png", notes:"Hou by sterk bodem setup." },
   { name:"santer", minSize:23, bagLimit:10, bait:"okka, sard strips", rig:"light bottom rig", sinker:"5-6 oz", image:"fish-carpenter.png", notes:"Selfde tipe vis vir nou." },
-  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", rig:"spinning rig", sinker:"No sinker / klein spoon", image:"fish-elf-shad.png", notes:"Werk lekker op retrieve." },
+  { name:"elf / shad", minSize:30, bagLimit:4, bait:"sardine, spoon, plug", rig:"spinning rig", sinker:"Geen sinker / klein spoon", image:"fish-elf-shad.png", notes:"Werk lekker op retrieve." },
   { name:"poensie", minSize:40, bagLimit:5, bait:"okka, sard", rig:"bottom rig", sinker:"7-8 oz", image:"fish-red-roman.png", notes:"Gebruik roman foto vir nou." }
 ];
 
 const spots = [
   { name:"Stilbaai Rivier Mond", lat:-34.382, lon:21.419, note:"Goeie reference spot vir mond area." },
-  { name:"Blombos Area", lat:-34.41, lon:21.53, note:"Gebruik as offshore reference." },
-  { name:"Jongensfontein", lat:-34.42, lon:21.34, note:"Bekende area vir boot planning." }
+  { name:"Blombos Area", lat:-34.410, lon:21.530, note:"Gebruik as offshore reference." },
+  { name:"Jongensfontein", lat:-34.420, lon:21.340, note:"Bekende area vir boot planning." }
 ];
 
 let mapInstance = null;
+let markersLayer = null;
 let deferredPrompt = null;
 
 const fishGrid = document.getElementById("fishGrid");
@@ -57,8 +58,11 @@ function switchTab(tabId) {
   if (tabId === "map") {
     setTimeout(() => {
       initMap();
-      if (mapInstance) mapInstance.invalidateSize();
-    }, 200);
+      if (mapInstance) {
+        mapInstance.invalidateSize();
+        fitMapToSpots();
+      }
+    }, 250);
   }
 }
 
@@ -75,11 +79,9 @@ function getConditionLevel(wind, swell) {
 
 function renderFish(list) {
   fishGrid.innerHTML = "";
-
   list.forEach(fish => {
     const card = document.createElement("div");
     card.className = "fish-card";
-
     card.innerHTML = `
       <img src="${fish.image}" alt="${fish.name}" onerror="this.src='https://via.placeholder.com/400x250?text=${encodeURIComponent(fish.name)}'">
       <div class="fish-card-body">
@@ -91,7 +93,6 @@ function renderFish(list) {
         <p><strong>Sinker:</strong> ${fish.sinker}</p>
       </div>
     `;
-
     card.addEventListener("click", () => showFishDetail(fish));
     fishGrid.appendChild(card);
   });
@@ -117,7 +118,6 @@ function buildFishIndex() {
 
 function filterFish() {
   const search = fishSearch.value.toLowerCase().trim();
-
   const filtered = fishData.filter(fish =>
     fish.name.toLowerCase().includes(search) ||
     fish.bait.toLowerCase().includes(search) ||
@@ -125,13 +125,11 @@ function filterFish() {
     fish.notes.toLowerCase().includes(search) ||
     fish.sinker.toLowerCase().includes(search)
   );
-
   renderFish(filtered);
 }
 
 function showFishDetail(fish) {
   detailTabBtn.classList.remove("hidden");
-
   fishDetailCard.innerHTML = `
     <img class="detail-photo" src="${fish.image}" alt="${fish.name}" onerror="this.src='https://via.placeholder.com/800x400?text=${encodeURIComponent(fish.name)}'">
     <h2 style="text-transform:capitalize;">${fish.name}</h2>
@@ -149,7 +147,6 @@ function showFishDetail(fish) {
 
     <button class="primary-btn" onclick="switchTab('fish')">← Back</button>
   `;
-
   switchTab("fishDetail");
 }
 
@@ -158,15 +155,15 @@ function loadLegalOptions() {
   logFish.innerHTML = "";
 
   fishData.forEach(fish => {
-    const option1 = document.createElement("option");
-    option1.value = fish.name;
-    option1.textContent = fish.name;
-    legalFish.appendChild(option1);
+    const a = document.createElement("option");
+    a.value = fish.name;
+    a.textContent = fish.name;
+    legalFish.appendChild(a);
 
-    const option2 = document.createElement("option");
-    option2.value = fish.name;
-    option2.textContent = fish.name;
-    logFish.appendChild(option2);
+    const b = document.createElement("option");
+    b.value = fish.name;
+    b.textContent = fish.name;
+    logFish.appendChild(b);
   });
 }
 
@@ -259,7 +256,6 @@ function showAllRigs() {
 
 function renderSpotList() {
   if (!spotList) return;
-
   spotList.innerHTML = spots.map(spot => `
     <div class="spot-item">
       <strong>${spot.name}</strong><br>
@@ -271,7 +267,6 @@ function renderSpotList() {
 
 function buildSpotIndex() {
   if (!spotIndex) return;
-
   spotIndex.innerHTML = "";
 
   spots.forEach(s => {
@@ -280,29 +275,85 @@ function buildSpotIndex() {
     btn.textContent = s.name;
     btn.onclick = () => {
       switchTab("map");
-      setTimeout(() => {
-        initMap();
-        if (mapInstance) {
-          mapInstance.setView([s.lat, s.lon], 13);
-        }
-      }, 250);
+      setTimeout(() => zoomToSpot(s), 350);
     };
     spotIndex.appendChild(btn);
   });
 }
 
+function initMap() {
+  const mapEl = document.getElementById("mapView");
+  if (!mapEl) return;
+
+  if (!mapInstance) {
+    mapInstance = L.map("mapView").setView([LAT, LON], 11);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap"
+    }).addTo(mapInstance);
+
+    markersLayer = L.layerGroup().addTo(mapInstance);
+
+    spots.forEach(s => {
+      L.marker([s.lat, s.lon])
+        .addTo(markersLayer)
+        .bindPopup(`<b>${s.name}</b><br>${s.note}`);
+    });
+
+    fitMapToSpots();
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const userLat = pos.coords.latitude;
+        const userLon = pos.coords.longitude;
+
+        L.circleMarker([userLat, userLon], {
+          radius: 8,
+          color: "#00c8ff",
+          fillColor: "#00c8ff",
+          fillOpacity: 0.85
+        }).addTo(markersLayer).bindPopup("📍 Jy is hier");
+      });
+    }
+  }
+}
+
+function fitMapToSpots() {
+  if (!mapInstance || !markersLayer) return;
+
+  const bounds = markersLayer.getBounds();
+  if (bounds.isValid()) {
+    mapInstance.fitBounds(bounds, { padding: [30, 30] });
+  }
+}
+
+function zoomToSpot(spot) {
+  if (!mapInstance || !markersLayer) return;
+  mapInstance.setView([spot.lat, spot.lon], 13);
+
+  markersLayer.eachLayer(layer => {
+    if (layer.getLatLng) {
+      const ll = layer.getLatLng();
+      if (Math.abs(ll.lat - spot.lat) < 0.0001 && Math.abs(ll.lng - spot.lon) < 0.0001) {
+        layer.openPopup();
+      }
+    }
+  });
+}
+
 async function loadWeatherAndMarine() {
   try {
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=wind_speed_10m,wind_direction_10m,temperature_2m,cloud_cover&timezone=auto`;
-    const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature&daily=sea_surface_temperature_max,sea_surface_temperature_min&timezone=auto`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=wind_speed_10m,wind_direction_10m,temperature_2m,cloud_cover&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+
+    const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_period,wave_direction,sea_surface_temperature,sea_level_height_msl&hourly=sea_level_height_msl&timezone=auto`;
 
     const [weatherRes, marineRes] = await Promise.all([fetch(weatherUrl), fetch(marineUrl)]);
     const weather = await weatherRes.json();
     const marine = await marineRes.json();
 
     const c = weather.current || {};
+    const d = weather.daily || {};
     const m = marine.current || {};
-    const daily = marine.daily || {};
 
     const windSpeed = c.wind_speed_10m ?? 0;
     const windDeg = c.wind_direction_10m ?? 0;
@@ -310,10 +361,9 @@ async function loadWeatherAndMarine() {
     const swellPeriod = m.wave_period ?? 0;
     const swellDeg = m.wave_direction ?? 0;
 
-    const airTemp = c.temperature_2m ?? "-";
-    const waterTemp = m.sea_surface_temperature ?? airTemp;
-    const tempMax = daily.sea_surface_temperature_max?.[0] ?? "-";
-    const tempMin = daily.sea_surface_temperature_min?.[0] ?? "-";
+    const waterTemp = m.sea_surface_temperature ?? "-";
+    const dayTemp = d.temperature_2m_max?.[0] ?? "-";
+    const nightTemp = d.temperature_2m_min?.[0] ?? "-";
 
     document.getElementById("windNow").textContent = `${windSpeed} km/h`;
     document.getElementById("swellNow").textContent = `${swell} m`;
@@ -334,8 +384,9 @@ async function loadWeatherAndMarine() {
     document.getElementById("weatherSwellPeriod").textContent = `${swellPeriod} s`;
     document.getElementById("weatherSwellDirection").textContent = `${degreesToCompass(swellDeg)} (${swellDeg}°)`;
     document.getElementById("weatherCloud").textContent = `${c.cloud_cover ?? "-"}%`;
-    document.getElementById("weatherTempMax").textContent = `${tempMax}°C`;
-    document.getElementById("weatherTempMin").textContent = `${tempMin}°C`;
+    document.getElementById("weatherWaterTemp").textContent = `${waterTemp}°C`;
+    document.getElementById("weatherDayTemp").textContent = `${dayTemp}°C`;
+    document.getElementById("weatherNightTemp").textContent = `${nightTemp}°C`;
 
     document.getElementById("seaSummaryWind").textContent = `${windSpeed} km/h`;
     document.getElementById("seaSummarySwell").textContent = `${swell} m @ ${swellPeriod}s`;
@@ -351,74 +402,73 @@ async function loadWeatherAndMarine() {
     badge.className = `condition-pill ${condition.cls}`;
 
     appStatus.className = "result-box";
-    appStatus.innerHTML = `Live data gelaai. Water temp: ${waterTemp}°C • Swell direction: ${degreesToCompass(swellDeg)} (${swellDeg}°)`;
+    appStatus.innerHTML = `Live data gelaai. Water temp: ${waterTemp}°C`;
+
+    loadTidesFromMarine(marine.hourly);
   } catch (err) {
     appStatus.className = "result-box";
-    appStatus.textContent = "Live data kon nie laai nie. Cache / offline mode waar moontlik.";
+    appStatus.textContent = "Live data kon nie laai nie.";
   }
+}
+
+function findTideExtremes(hourly) {
+  if (!hourly || !hourly.time || !hourly.sea_level_height_msl) return [];
+
+  const times = hourly.time;
+  const levels = hourly.sea_level_height_msl;
+  const extremes = [];
+
+  for (let i = 1; i < levels.length - 1; i++) {
+    const prev = levels[i - 1];
+    const curr = levels[i];
+    const next = levels[i + 1];
+
+    if (curr > prev && curr > next) {
+      extremes.push({ type: "High", time: times[i], level: curr });
+    }
+    if (curr < prev && curr < next) {
+      extremes.push({ type: "Low", time: times[i], level: curr });
+    }
+  }
+
+  return extremes.slice(0, 6);
+}
+
+function loadTidesFromMarine(hourly) {
+  const tideList = document.getElementById("tideList");
+  if (!tideList) return;
+
+  const extremes = findTideExtremes(hourly);
+
+  if (!extremes.length) {
+    tideList.innerHTML = `
+      <div class="spot-item">
+        <strong>No tide turns found</strong>
+        <p>Gebruik tide notes vir nou.</p>
+      </div>
+    `;
+    return;
+  }
+
+  tideList.innerHTML = extremes.map(tide => `
+    <div class="spot-item">
+      <strong>${tide.type} Tide</strong>
+      <p>${new Date(tide.time).toLocaleString()}</p>
+      <p>Sea level: ${Number(tide.level).toFixed(2)} m</p>
+    </div>
+  `).join("");
 }
 
 function loadTides() {
   if (tideNotes) {
     tideNotes.value = localStorage.getItem("tideNotes") || "";
   }
-
-  const tideList = document.getElementById("tideList");
-  if (!tideList) return;
-
-  tideList.innerHTML = `
-    <div class="spot-item">
-      <strong>Next High Tide</strong>
-      <p>Voeg jou plaaslike tyd hier by of gebruik tide notes.</p>
-    </div>
-    <div class="spot-item">
-      <strong>Next Low Tide</strong>
-      <p>Voeg jou plaaslike tyd hier by of gebruik tide notes.</p>
-    </div>
-    <div class="spot-item">
-      <strong>Tip</strong>
-      <p>As live tides later werk, kan ons hierdie blok outomaties vul.</p>
-    </div>
-  `;
 }
 
 function saveTideNotes() {
   localStorage.setItem("tideNotes", tideNotes.value);
   updateStats();
   alert("Tide notes saved.");
-}
-
-function initMap() {
-  const mapEl = document.getElementById("mapView");
-  if (!mapEl) return;
-
-  if (!mapInstance) {
-    mapInstance = L.map("mapView").setView([LAT, LON], 11);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap"
-    }).addTo(mapInstance);
-
-    spots.forEach(s => {
-      L.marker([s.lat, s.lon]).addTo(mapInstance).bindPopup(`<b>${s.name}</b><br>${s.note}`);
-    });
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const userLat = pos.coords.latitude;
-        const userLon = pos.coords.longitude;
-
-        L.circleMarker([userLat, userLon], {
-          radius: 8,
-          color: "#00c8ff",
-          fillColor: "#00c8ff",
-          fillOpacity: 0.85
-        }).addTo(mapInstance).bindPopup("📍 Jy is hier");
-
-        mapInstance.setView([userLat, userLon], 12);
-      });
-    }
-  }
 }
 
 function savePlan() {
@@ -438,7 +488,6 @@ function showSavedPlan() {
   if (!savedPlan) return;
 
   const plan = JSON.parse(localStorage.getItem("tripPlan"));
-
   if (!plan || (!plan.date && !plan.time && !plan.notes)) {
     savedPlan.textContent = "Nog niks gestoor nie.";
     return;
@@ -493,7 +542,6 @@ function renderCatchLog() {
   if (!catchList) return;
 
   const list = getCatchLog();
-
   if (!list.length) {
     catchList.innerHTML = `<div class="result-box">Nog geen catches nie.</div>`;
     return;
@@ -533,7 +581,6 @@ function renderCatchLog() {
 
 function updateStats() {
   const catches = getCatchLog();
-
   const totalEl = document.getElementById("totalCatches");
   const topEl = document.getElementById("topSpecies");
   const plansEl = document.getElementById("savedPlansCount");
