@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App V7</title>
+  <title>Stilbaai Fishing App V11</title>
   <meta name="theme-color" content="#06111b" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -16,32 +16,10 @@
     <header class="topbar">
       <div>
         <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">V7</p>
+        <p class="subtitle">V11</p>
       </div>
-      <div class="badge">V7</div>
+      <div class="badge">V11</div>
     </header>
-
-    <section class="hero-card">
-      <h2>Vinnige Oorsig</h2>
-      <div class="hero-grid">
-        <div class="stat-card">
-          <span class="label">Wind</span>
-          <span class="value" id="windNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Swell</span>
-          <span class="value" id="swellNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Water Temp</span>
-          <span class="value" id="tempNow">-</span>
-        </div>
-        <div class="stat-card">
-          <span class="label">Conditions</span>
-          <span class="value" id="conditionNow">-</span>
-        </div>
-      </div>
-    </section>
 
     <nav class="tabbar">
       <button class="tab-btn active" data-tab="home">Home</button>
@@ -64,7 +42,6 @@
               <li><strong>Wind:</strong> <span id="homeWind">-</span></li>
               <li><strong>Swell:</strong> <span id="homeSwell">-</span></li>
               <li><strong>Periode:</strong> <span id="homePeriod">-</span></li>
-              <li><strong>Water Temp:</strong> <span id="homeTemp">-</span></li>
               <li><strong>Cloud:</strong> <span id="homeCloud">-</span></li>
               <li><strong>Status:</strong> <span id="conditionBadge" class="condition-pill neutral">Loading</span></li>
             </ul>
@@ -81,9 +58,29 @@
           </div>
         </div>
 
-        <div class="card">
-          <h3>App Status</h3>
-          <div class="result-box" id="appStatus">App gereed.</div>
+        <div class="grid two">
+          <div class="card">
+            <h3>Wind / Drift</h3>
+            <div class="visual-wrap">
+              <div class="arrow-row">
+                <div>
+                  <div class="small-label">Wind</div>
+                  <div class="big-arrow" id="windArrow">⬆</div>
+                </div>
+                <div>
+                  <div class="small-label">Drift</div>
+                  <div class="big-arrow" id="driftArrow">⬆</div>
+                </div>
+              </div>
+              <p id="windDirText">-</p>
+              <p id="driftText">-</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>App Status</h3>
+            <div class="result-box" id="appStatus">App gereed.</div>
+          </div>
         </div>
       </section>
 
@@ -98,7 +95,6 @@
               <li><strong>Swell Period:</strong> <span id="weatherSwellPeriod">-</span></li>
               <li><strong>Swell Direction:</strong> <span id="weatherSwellDirection">-</span></li>
               <li><strong>Cloud Cover:</strong> <span id="weatherCloud">-</span></li>
-              <li><strong>Water Temp:</strong> <span id="weatherWaterTemp">-</span></li>
             </ul>
           </div>
 
@@ -245,4 +241,4 @@
 
   <script src="app.js"></script>
 </body>
-  </html>
+</html>
