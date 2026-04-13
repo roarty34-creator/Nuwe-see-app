@@ -1,67 +1,65 @@
 <!DOCTYPE html>
 <html lang="af">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App V12</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fishing App V13</title>
 
-  <!-- NO CACHE -->
-  <meta http-equiv="Cache-Control" content="no-store" />
-  <meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Cache-Control" content="no-store">
 
-  <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css">
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
+
 <body>
 
-<div class="app-shell">
+<div class="app">
 
-<header class="topbar">
-  <h1>🎣 Fishing App</h1>
-  <div class="badge">V12</div>
+<header>
+<h2>🎣 Fishing App V13</h2>
 </header>
 
-<nav class="tabbar">
-  <button onclick="showTab('home')">Home</button>
-  <button onclick="showTab('fish')">Fish</button>
-  <button onclick="showTab('map')">Map</button>
+<nav>
+<button onclick="tab('home')">Home</button>
+<button onclick="tab('fish')">Fish</button>
+<button onclick="tab('map')">Map</button>
 </nav>
 
 <!-- HOME -->
 <section id="home" class="tab active">
-  <div class="card">
-    <h3>Weather</h3>
-    <p id="weatherBox">Loading...</p>
-  </div>
+<div class="card">
+<h3>Weather</h3>
+<p id="weather"></p>
+</div>
 
-  <div class="card">
-    <h3>Week Temps</h3>
-    <div id="weekTemps"></div>
-  </div>
+<div class="card">
+<h3>Week Temps</h3>
+<div id="temps"></div>
+</div>
 
-  <div class="card">
-    <h3>Tides</h3>
-    <div id="tides"></div>
-  </div>
+<div class="card">
+<h3>Tides</h3>
+<div id="tides"></div>
+</div>
 </section>
 
 <!-- FISH -->
 <section id="fish" class="tab">
-  <div id="fishIndex" class="grid"></div>
-  <div id="fishDetail" class="card"></div>
+<div id="fishList"></div>
+<div id="fishDetail"></div>
 </section>
 
 <!-- MAP -->
 <section id="map" class="tab">
-  <div id="mapView"></div>
+<div id="mapView"></div>
 
-  <button onclick="useGPS()">Use My GPS</button>
-  <button onclick="saveSpot()">Save Spot</button>
+<button onclick="getGPS()">Use GPS</button>
+<button onclick="saveSpot()">Save Spot</button>
 
-  <div id="gpsStatus"></div>
-  <div id="spotList"></div>
+<div id="gps"></div>
+<div id="spots"></div>
 </section>
 
 </div>
