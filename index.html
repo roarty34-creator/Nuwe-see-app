@@ -1,69 +1,431 @@
 <!DOCTYPE html>
 <html lang="af">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fishing App V13</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fishing App V14</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #06111b;
+      color: #fff;
+    }
 
-<meta http-equiv="Cache-Control" content="no-store">
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 14px;
+    }
 
-<link rel="stylesheet" href="style.css">
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    .badge {
+      background: #00c8ff;
+      color: #001018;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 14px;
+    }
+
+    .tabbar button,
+    button {
+      border: none;
+      background: #123247;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tabbar button.active {
+      background: #00c8ff;
+      color: #001018;
+      font-weight: bold;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .card {
+      background: #0a1f2e;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .fish-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .fish-item {
+      background: #123247;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .fish-item:hover {
+      background: #17425e;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #102636;
+      color: white;
+      box-sizing: border-box;
+    }
+
+    #mapBox {
+      background: #102636;
+      min-height: 150px;
+      border-radius: 10px;
+      padding: 12px;
+      white-space: pre-wrap;
+    }
+
+    .spot {
+      background: #123247;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .muted {
+      color: #9db4c9;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app">
+    <div class="topbar">
+      <h2>🎣 Fishing App</h2>
+      <div class="badge">V14</div>
+    </div>
 
-<div class="app">
+    <div class="tabbar">
+      <button class="tab-btn active" data-tab="home">Home</button>
+      <button class="tab-btn" data-tab="fish">Fish</button>
+      <button class="tab-btn" data-tab="map">Map</button>
+      <button class="tab-btn" data-tab="legal">Legal</button>
+    </div>
 
-<header>
-<h2>🎣 Fishing App V13</h2>
-</header>
+    <section id="home" class="tab active">
+      <div class="card">
+        <h3>Weather</h3>
+        <div id="weatherText">Loading...</div>
+      </div>
 
-<nav>
-<button onclick="tab('home')">Home</button>
-<button onclick="tab('fish')">Fish</button>
-<button onclick="tab('map')">Map</button>
-</nav>
+      <div class="card">
+        <h3>Week Temps</h3>
+        <div id="tempsText">Loading...</div>
+      </div>
 
-<!-- HOME -->
-<section id="home" class="tab active">
-<div class="card">
-<h3>Weather</h3>
-<p id="weather"></p>
-</div>
+      <div class="card">
+        <h3>Tides</h3>
+        <div id="tidesText">Use local tide source for exact times.</div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Week Temps</h3>
-<div id="temps"></div>
-</div>
+    <section id="fish" class="tab">
+      <div class="card" id="fishListCard">
+        <h3>Fish</h3>
+        <div id="fishList" class="fish-list"></div>
+      </div>
 
-<div class="card">
-<h3>Tides</h3>
-<div id="tides"></div>
-</div>
-</section>
+      <div class="card" id="fishDetailCard" style="display:none;"></div>
+    </section>
 
-<!-- FISH -->
-<section id="fish" class="tab">
-<div id="fishList"></div>
-<div id="fishDetail"></div>
-</section>
+    <section id="map" class="tab">
+      <div class="card">
+        <h3>GPS Spot Save</h3>
+        <button id="useGpsBtn">Use My GPS</button>
+        <button id="saveGpsBtn">Save Current GPS Spot</button>
+        <div id="gpsText" class="muted">Nog geen GPS nie.</div>
+      </div>
 
-<!-- MAP -->
-<section id="map" class="tab">
-<div id="mapView"></div>
+      <div class="card">
+        <h3>Add Spot From GPS</h3>
+        <input id="spotName" placeholder="Spot naam" />
+        <input id="spotLat" placeholder="Latitude" readonly />
+        <input id="spotLon" placeholder="Longitude" readonly />
+        <textarea id="spotNote" placeholder="Nota"></textarea>
+        <button id="saveSpotBtn">Save Spot</button>
+      </div>
 
-<button onclick="getGPS()">Use GPS</button>
-<button onclick="saveSpot()">Save Spot</button>
+      <div class="card">
+        <h3>Saved Spots</h3>
+        <div id="spotsList"></div>
+      </div>
+    </section>
 
-<div id="gps"></div>
-<div id="spots"></div>
-</section>
+    <section id="legal" class="tab">
+      <div class="card">
+        <h3>Legal Checker</h3>
+        <select id="legalFish"></select>
+        <input id="legalSize" type="number" placeholder="Lengte in cm" />
+        <button id="checkLegalBtn">Check</button>
+        <div id="legalResult" style="margin-top:10px;"></div>
+      </div>
+    </section>
+  </div>
 
-</div>
+  <script>
+    const fishData = [
+      { name:"kob", minSize:60, bagLimit:2, bait:"okka, chokka, sard" },
+      { name:"geelstert / cape yellowtail", minSize:0, bagLimit:10, bait:"live bait, sardine, plug" },
+      { name:"red roman", minSize:30, bagLimit:5, bait:"okka, sard, chokka" },
+      { name:"red stumpnose / miss lucy", minSize:25, bagLimit:5, bait:"okka, sard" },
+      { name:"carpenter / silverfish", minSize:30, bagLimit:5, bait:"okka strips, sard" },
+      { name:"yellowbelly rockcod", minSize:30, bagLimit:5, bait:"okka, sard" },
+      { name:"hottentot", minSize:22, bagLimit:10, bait:"red bait, prawn, mussel" },
+      { name:"geelbek / cape salmon", minSize:60, bagLimit:2, bait:"chokka, sard, live bait" },
+      { name:"santer", minSize:30, bagLimit:5, bait:"okka, sard strips" },
+      { name:"elf (shad)", minSize:30, bagLimit:4, bait:"sardine, spoon, plug" }
+    ];
 
-<script src="app.js"></script>
+    let currentLat = null;
+    let currentLon = null;
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add("active");
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => showTab(btn.dataset.tab));
+    });
+
+    function renderFishList() {
+      const list = document.getElementById("fishList");
+      list.innerHTML = "";
+
+      fishData.forEach(fish => {
+        const div = document.createElement("div");
+        div.className = "fish-item";
+        div.textContent = fish.name;
+        div.onclick = () => showFishDetail(fish);
+        list.appendChild(div);
+      });
+
+      const legalFish = document.getElementById("legalFish");
+      legalFish.innerHTML = fishData.map(f => `<option value="${f.name}">${f.name}</option>`).join("");
+    }
+
+    function showFishDetail(fish) {
+      document.getElementById("fishListCard").style.display = "none";
+      const card = document.getElementById("fishDetailCard");
+      card.style.display = "block";
+      card.innerHTML = `
+        <h3>${fish.name}</h3>
+        <p><strong>Minimum size:</strong> ${fish.minSize} cm</p>
+        <p><strong>Bag limit:</strong> ${fish.bagLimit}</p>
+        <p><strong>Bait:</strong> ${fish.bait}</p>
+        <button onclick="backToFishList()">← Back</button>
+      `;
+    }
+
+    function backToFishList() {
+      document.getElementById("fishDetailCard").style.display = "none";
+      document.getElementById("fishListCard").style.display = "block";
+    }
+
+    document.getElementById("checkLegalBtn").addEventListener("click", () => {
+      const fishName = document.getElementById("legalFish").value;
+      const size = Number(document.getElementById("legalSize").value);
+      const fish = fishData.find(f => f.name === fishName);
+
+      if (!fish || !size) {
+        document.getElementById("legalResult").textContent = "Tik eers 'n geldige lengte in.";
+        return;
+      }
+
+      if (fish.minSize === 0 || size >= fish.minSize) {
+        document.getElementById("legalResult").textContent =
+          `Wettig volgens app. Min size: ${fish.minSize} cm. Bag limit: ${fish.bagLimit}.`;
+      } else {
+        document.getElementById("legalResult").textContent =
+          `Te klein. Min size vir ${fish.name} is ${fish.minSize} cm.`;
+      }
+    });
+
+    function getSavedSpots() {
+      return JSON.parse(localStorage.getItem("spots_v14") || "[]");
+    }
+
+    function saveSavedSpots(spots) {
+      localStorage.setItem("spots_v14", JSON.stringify(spots));
+    }
+
+    function renderSpots() {
+      const spots = getSavedSpots();
+      const box = document.getElementById("spotsList");
+
+      if (!spots.length) {
+        box.innerHTML = `<div class="muted">Nog geen saved spots nie.</div>`;
+        return;
+      }
+
+      box.innerHTML = spots.map(spot => `
+        <div class="spot">
+          <strong>${spot.name}</strong><br>
+          <span class="muted">${spot.lat}, ${spot.lon}</span><br>
+          ${spot.note || ""}
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("useGpsBtn").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        document.getElementById("gpsText").textContent = "GPS nie beskikbaar nie.";
+        return;
+      }
+
+      document.getElementById("gpsText").textContent = "Besig om GPS te kry...";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentLat = pos.coords.latitude.toFixed(6);
+          currentLon = pos.coords.longitude.toFixed(6);
+          document.getElementById("gpsText").textContent = `GPS: ${currentLat}, ${currentLon}`;
+          document.getElementById("spotLat").value = currentLat;
+          document.getElementById("spotLon").value = currentLon;
+        },
+        () => {
+          document.getElementById("gpsText").textContent = "Kon nie GPS kry nie.";
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      );
+    });
+
+    document.getElementById("saveGpsBtn").addEventListener("click", () => {
+      if (!currentLat || !currentLon) {
+        alert("Druk eers Use My GPS.");
+        return;
+      }
+
+      const name = prompt("Naam vir GPS spot?");
+      if (!name) return;
+      const note = prompt("Nota?") || "";
+
+      const spots = getSavedSpots();
+      spots.push({ name, lat: currentLat, lon: currentLon, note });
+      saveSavedSpots(spots);
+      renderSpots();
+      alert("GPS spot saved.");
+    });
+
+    document.getElementById("saveSpotBtn").addEventListener("click", () => {
+      const name = document.getElementById("spotName").value.trim();
+      const lat = document.getElementById("spotLat").value.trim();
+      const lon = document.getElementById("spotLon").value.trim();
+      const note = document.getElementById("spotNote").value.trim();
+
+      if (!name) {
+        alert("Tik eers 'n spot naam.");
+        return;
+      }
+
+      if (!lat || !lon) {
+        alert("Druk eers Use My GPS.");
+        return;
+      }
+
+      const spots = getSavedSpots();
+      spots.push({ name, lat, lon, note });
+      saveSavedSpots(spots);
+      renderSpots();
+
+      document.getElementById("spotName").value = "";
+      document.getElementById("spotNote").value = "";
+
+      alert("Spot saved.");
+    });
+
+    async function loadWeather() {
+      try {
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&current=wind_speed_10m,wind_direction_10m,cloud_cover");
+        const data = await res.json();
+        const c = data.current || {};
+        document.getElementById("weatherText").textContent =
+          `Wind: ${c.wind_speed_10m ?? "-"} km/h | Direction: ${c.wind_direction_10m ?? "-"}° | Cloud: ${c.cloud_cover ?? "-"}%`;
+      } catch {
+        document.getElementById("weatherText").textContent = "Weather kon nie laai nie.";
+      }
+    }
+
+    async function loadTemps() {
+      try {
+        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min&timezone=auto");
+        const data = await res.json();
+        const d = data.daily || {};
+        const dates = d.time || [];
+        const maxs = d.temperature_2m_max || [];
+        const mins = d.temperature_2m_min || [];
+
+        if (!dates.length) {
+          document.getElementById("tempsText").textContent = "Temps kon nie laai nie.";
+          return;
+        }
+
+        document.getElementById("tempsText").innerHTML = dates.slice(0, 5).map((date, i) => `
+          <div class="spot">
+            <strong>${date}</strong><br>
+            Day: ${maxs[i] ?? "-"}°C<br>
+            Night: ${mins[i] ?? "-"}°C
+          </div>
+        `).join("");
+      } catch {
+        document.getElementById("tempsText").textContent = "Temps kon nie laai nie.";
+      }
+    }
+
+    function loadTides() {
+      document.getElementById("tidesText").innerHTML = `
+        <div class="spot">Use local tide source for exact high/low tide times.</div>
+      `;
+    }
+
+    renderFishList();
+    renderSpots();
+    loadWeather();
+    loadTemps();
+    loadTides();
+  </script>
 </body>
 </html>
