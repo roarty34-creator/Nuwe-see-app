@@ -3,242 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stilbaai Fishing App V11</title>
-  <meta name="theme-color" content="#06111b" />
-  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Stilbaai Fishing App V12</title>
+
+  <!-- NO CACHE -->
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+
   <link rel="stylesheet" href="style.css" />
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <h1>🎣 Stilbaai Fishing App</h1>
-        <p class="subtitle">V11</p>
-      </div>
-      <div class="badge">V11</div>
-    </header>
 
-    <nav class="tabbar">
-      <button class="tab-btn active" data-tab="home">Home</button>
-      <button class="tab-btn" data-tab="weather">Weather</button>
-      <button class="tab-btn" data-tab="tides">Tides</button>
-      <button class="tab-btn" data-tab="fish">Fish</button>
-      <button class="tab-btn" data-tab="legal">Legal</button>
-      <button class="tab-btn" data-tab="map">Map</button>
-      <button class="tab-btn" data-tab="planner">Planner</button>
-      <button class="tab-btn" data-tab="log">Catch Log</button>
-      <button class="tab-btn hidden" data-tab="fishDetail" id="detailTabBtn">Detail</button>
-    </nav>
+<div class="app-shell">
 
-    <main class="content">
-      <section class="tab-content active" id="home">
-        <div class="grid two">
-          <div class="card">
-            <h3>Toestande</h3>
-            <ul class="info-list">
-              <li><strong>Wind:</strong> <span id="homeWind">-</span></li>
-              <li><strong>Swell:</strong> <span id="homeSwell">-</span></li>
-              <li><strong>Periode:</strong> <span id="homePeriod">-</span></li>
-              <li><strong>Cloud:</strong> <span id="homeCloud">-</span></li>
-              <li><strong>Status:</strong> <span id="conditionBadge" class="condition-pill neutral">Loading</span></li>
-            </ul>
-          </div>
+<header class="topbar">
+  <h1>🎣 Fishing App</h1>
+  <div class="badge">V12</div>
+</header>
 
-          <div class="card">
-            <h3>Quick Actions</h3>
-            <div class="index-grid">
-              <div class="index-btn" onclick="switchTab('fish')">Fish</div>
-              <div class="index-btn" onclick="switchTab('map')">Map</div>
-              <div class="index-btn" onclick="switchTab('planner')">Planner</div>
-              <div class="index-btn" onclick="switchTab('log')">Log</div>
-            </div>
-          </div>
-        </div>
+<nav class="tabbar">
+  <button onclick="showTab('home')">Home</button>
+  <button onclick="showTab('fish')">Fish</button>
+  <button onclick="showTab('map')">Map</button>
+</nav>
 
-        <div class="grid two">
-          <div class="card">
-            <h3>Wind / Drift</h3>
-            <div class="visual-wrap">
-              <div class="arrow-row">
-                <div>
-                  <div class="small-label">Wind</div>
-                  <div class="big-arrow" id="windArrow">⬆</div>
-                </div>
-                <div>
-                  <div class="small-label">Drift</div>
-                  <div class="big-arrow" id="driftArrow">⬆</div>
-                </div>
-              </div>
-              <p id="windDirText">-</p>
-              <p id="driftText">-</p>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>App Status</h3>
-            <div class="result-box" id="appStatus">App gereed.</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="weather">
-        <div class="grid two">
-          <div class="card">
-            <h3>Sea / Weather</h3>
-            <ul class="info-list">
-              <li><strong>Wind Speed:</strong> <span id="weatherWindSpeed">-</span></li>
-              <li><strong>Wind Direction:</strong> <span id="weatherWindDirection">-</span></li>
-              <li><strong>Swell Height:</strong> <span id="weatherSwellHeight">-</span></li>
-              <li><strong>Swell Period:</strong> <span id="weatherSwellPeriod">-</span></li>
-              <li><strong>Swell Direction:</strong> <span id="weatherSwellDirection">-</span></li>
-              <li><strong>Cloud Cover:</strong> <span id="weatherCloud">-</span></li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h3>Week Day / Night Temps</h3>
-            <div id="weekTempList" class="spot-list"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="tides">
-        <div class="grid two">
-          <div class="card">
-            <h3>Tides</h3>
-            <div id="tideList" class="spot-list"></div>
-          </div>
-
-          <div class="card">
-            <h3>Tide Notes</h3>
-            <textarea id="tideNotes" placeholder="Skryf jou tide notas hier..."></textarea>
-            <button class="primary-btn" id="saveTideNotesBtn">Save</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="fish">
-        <div class="card">
-          <h3>Fish Index</h3>
-          <div class="index-grid" id="fishIndex"></div>
-        </div>
-
-        <div class="card">
-          <input type="text" id="fishSearch" class="search-input" placeholder="Soek vis..." />
-        </div>
-
-        <div class="fish-grid" id="fishGrid"></div>
-      </section>
-
-      <section class="tab-content" id="fishDetail">
-        <div class="card" id="fishDetailCard">
-          <h3>Fish Detail</h3>
-          <p>Kies ’n vis.</p>
-        </div>
-      </section>
-
-      <section class="tab-content" id="legal">
-        <div class="grid two">
-          <div class="card">
-            <h3>Legal Checker</h3>
-            <label for="legalFish">Kies vis</label>
-            <select id="legalFish"></select>
-
-            <label for="fishLength">Lengte (cm)</label>
-            <input type="number" id="fishLength" placeholder="Tik lengte in cm" />
-
-            <button class="primary-btn" id="checkLegalBtn">Check</button>
-            <div class="result-box" id="legalResult">Resultaat wys hier...</div>
-          </div>
-
-          <div class="card">
-            <h3>Reference</h3>
-            <p class="muted">Checker gebruik minimum groottes in jou fish database.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="map">
-        <div class="grid two">
-          <div class="card">
-            <h3>Map</h3>
-            <div id="mapView"></div>
-            <button class="primary-btn" id="saveGpsSpotBtn">Save Current GPS Spot</button>
-            <div class="result-box" id="gpsStatus">Nog geen GPS aksie nie.</div>
-          </div>
-
-          <div class="card">
-            <h3>Add New Spot</h3>
-            <input type="text" id="newSpotName" placeholder="Spot naam" />
-            <input type="text" id="newSpotLat" placeholder="Latitude" readonly />
-            <input type="text" id="newSpotLon" placeholder="Longitude" readonly />
-            <textarea id="newSpotNote" placeholder="Nota oor die spot"></textarea>
-            <button class="primary-btn" id="useGpsBtn">Use My GPS Coordinates</button>
-            <button class="primary-btn" id="addSpotBtn">Save Spot</button>
-          </div>
-        </div>
-
-        <div class="grid two">
-          <div class="card">
-            <h3>Saved Spots</h3>
-            <div class="spot-list" id="spotList"></div>
-          </div>
-
-          <div class="card">
-            <h3>Quick Spot Select</h3>
-            <div id="spotIndex" class="index-grid"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="planner">
-        <div class="grid two">
-          <div class="card">
-            <h3>Plan</h3>
-            <input type="date" id="tripDate"/>
-            <input type="time" id="tripTime"/>
-            <textarea id="tripNotes" placeholder="Skryf jou plan..."></textarea>
-            <button class="primary-btn" id="savePlanBtn">Save</button>
-          </div>
-
-          <div class="card">
-            <h3>Saved</h3>
-            <div class="result-box" id="savedPlan"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-content" id="log">
-        <div class="grid two">
-          <div class="card">
-            <h3>Log Catch</h3>
-            <input type="date" id="logDate"/>
-            <select id="logFish"></select>
-            <input type="number" id="logLength" placeholder="Lengte cm"/>
-            <input type="text" id="logSpot" placeholder="Spot naam"/>
-            <textarea id="logNotes" placeholder="Notas"></textarea>
-            <button class="primary-btn" id="saveCatchBtn">Save</button>
-          </div>
-
-          <div class="card">
-            <h3>Backup</h3>
-            <button class="primary-btn" id="exportBtn">Export Backup</button>
-            <label class="file-label" for="importFile">Import Backup</label>
-            <input type="file" id="importFile" accept=".json" />
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>History</h3>
-          <div id="catchList" class="catch-list"></div>
-        </div>
-      </section>
-    </main>
+<!-- HOME -->
+<section id="home" class="tab active">
+  <div class="card">
+    <h3>Weather</h3>
+    <p id="weatherBox">Loading...</p>
   </div>
 
-  <script src="app.js"></script>
+  <div class="card">
+    <h3>Week Temps</h3>
+    <div id="weekTemps"></div>
+  </div>
+
+  <div class="card">
+    <h3>Tides</h3>
+    <div id="tides"></div>
+  </div>
+</section>
+
+<!-- FISH -->
+<section id="fish" class="tab">
+  <div id="fishIndex" class="grid"></div>
+  <div id="fishDetail" class="card"></div>
+</section>
+
+<!-- MAP -->
+<section id="map" class="tab">
+  <div id="mapView"></div>
+
+  <button onclick="useGPS()">Use My GPS</button>
+  <button onclick="saveSpot()">Save Spot</button>
+
+  <div id="gpsStatus"></div>
+  <div id="spotList"></div>
+</section>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
