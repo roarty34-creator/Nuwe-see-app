@@ -1,117 +1,119 @@
-let map, marker;
-let currentLat = null;
-let currentLon = null;
+let currentLat=null,currentLon=null,map,marker;
 
-const fish = [
-  {name:"kob", size:60, bag:2},
-  {name:"geelstert", size:0, bag:10},
-  {name:"hottentot", size:22, bag:10},
-  {name:"elf", size:30, bag:4},
+// TAB FIX
+function tab(id){
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+// FISH DATA
+const fish=[
+{name:"kob",size:60,bag:2},
+{name:"geelstert",size:0,bag:10},
+{name:"hottentot",size:22,bag:10},
+{name:"elf",size:30,bag:4}
 ];
 
-function showTab(id){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// BUILD LIST
+function loadFish(){
+let box=document.getElementById("fishList");
+box.innerHTML="";
+
+fish.forEach(f=>{
+let d=document.createElement("div");
+d.innerText=f.name;
+d.onclick=()=>showFish(f);
+box.appendChild(d);
+});
 }
 
-function buildFish(){
-  let box = document.getElementById("fishIndex");
-  box.innerHTML = "";
-
-  fish.forEach(f=>{
-    let d = document.createElement("div");
-    d.className="index-btn";
-    d.innerText=f.name;
-    d.onclick=()=>showFish(f);
-    box.appendChild(d);
-  });
-}
-
+// SHOW DETAIL + BACK FIX
 function showFish(f){
-  document.getElementById("fishDetail").innerHTML = `
-    <h3>${f.name}</h3>
-    Min size: ${f.size} cm<br>
-    Bag limit: ${f.bag}
-  `;
+document.getElementById("fishList").style.display="none";
+
+document.getElementById("fishDetail").innerHTML=`
+<h3>${f.name}</h3>
+Min size: ${f.size} cm<br>
+Bag: ${f.bag}<br><br>
+
+<button onclick="backFish()">← Back</button>
+`;
 }
 
+// BACK WORKS NOW
+function backFish(){
+document.getElementById("fishDetail").innerHTML="";
+document.getElementById("fishList").style.display="block";
+}
+
+// MAP
 function initMap(){
-  map = L.map('mapView').setView([-34.37,21.42],11);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+map=L.map("mapView").setView([-34.37,21.42],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 }
 
-function useGPS(){
-  navigator.geolocation.getCurrentPosition(pos=>{
-    currentLat = pos.coords.latitude;
-    currentLon = pos.coords.longitude;
+// GPS FIX
+function getGPS(){
+navigator.geolocation.getCurrentPosition(p=>{
+currentLat=p.coords.latitude;
+currentLon=p.coords.longitude;
 
-    if(marker) map.removeLayer(marker);
-    marker = L.marker([currentLat,currentLon]).addTo(map);
+if(marker) map.removeLayer(marker);
+marker=L.marker([currentLat,currentLon]).addTo(map);
 
-    document.getElementById("gpsStatus").innerText =
-      "GPS: "+currentLat+", "+currentLon;
-  });
+document.getElementById("gps").innerText=currentLat+", "+currentLon;
+});
 }
 
+// SAVE SPOT FIX
 function saveSpot(){
-  if(!currentLat) return alert("Use GPS first");
+if(!currentLat) return alert("Use GPS first");
 
-  let spots = JSON.parse(localStorage.getItem("spots")||"[]");
+let s=JSON.parse(localStorage.getItem("spots")||"[]");
+s.push({lat:currentLat,lon:currentLon});
+localStorage.setItem("spots",JSON.stringify(s));
 
-  spots.push({lat:currentLat,lon:currentLon});
-  localStorage.setItem("spots",JSON.stringify(spots));
-
-  loadSpots();
-}
-
-function loadSpots(){
-  let box = document.getElementById("spotList");
-  let spots = JSON.parse(localStorage.getItem("spots")||"[]");
-
-  box.innerHTML = spots.map(s=>`
-    <div>${s.lat}, ${s.lon}</div>
-  `).join("");
-}
-
-async function loadWeather(){
-  let url = "https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&current=wind_speed_10m";
-
-  let res = await fetch(url);
-  let data = await res.json();
-
-  document.getElementById("weatherBox").innerText =
-    "Wind: "+data.current.wind_speed_10m+" km/h";
-}
-
-async function loadTemps(){
-  let url = "https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min";
-
-  let res = await fetch(url);
-  let d = await res.json();
-
-  let out="";
-  for(let i=0;i<5;i++){
-    out += `
-      <div>
-        ${d.daily.time[i]}<br>
-        Day: ${d.daily.temperature_2m_max[i]}°C<br>
-        Night: ${d.daily.temperature_2m_min[i]}°C
-      </div>
-    `;
-  }
-
-  document.getElementById("weekTemps").innerHTML = out;
-}
-
-function loadTides(){
-  document.getElementById("tides").innerHTML =
-    "Use external tide source (Open-Meteo limitation)";
-}
-
-buildFish();
-initMap();
 loadSpots();
-loadWeather();
-loadTemps();
-loadTides();
+}
+
+// LOAD SPOTS
+function loadSpots(){
+let s=JSON.parse(localStorage.getItem("spots")||"[]");
+
+document.getElementById("spots").innerHTML=s.map(x=>`
+<div>${x.lat}, ${x.lon}</div>
+`).join("");
+}
+
+// WEATHER
+async function weather(){
+let r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&current=wind_speed_10m");
+let d=await r.json();
+document.getElementById("weather").innerText="Wind "+d.current.wind_speed_10m;
+}
+
+// TEMPS
+async function temps(){
+let r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.37&longitude=21.42&daily=temperature_2m_max,temperature_2m_min");
+let d=await r.json();
+
+let out="";
+for(let i=0;i<5;i++){
+out+=`${d.daily.time[i]} Day ${d.daily.temperature_2m_max[i]} Night ${d.daily.temperature_2m_min[i]}<br>`;
+}
+
+document.getElementById("temps").innerHTML=out;
+}
+
+// TIDES
+function tides(){
+document.getElementById("tides").innerText="Check tides externally";
+}
+
+// INIT
+initMap();
+loadFish();
+loadSpots();
+weather();
+temps();
+tides();
